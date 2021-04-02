@@ -120,6 +120,12 @@ int AP_CodevEsc::configure_esc()
 
 void AP_CodevEsc::execute_codev_esc()
 {
+#ifdef HAL_PWR_AD_KEY_GPIO
+    if (hal.gpio->read(HAL_PWR_AD_KEY_GPIO) == 0) {
+        hal.gpio->write(HAL_POWER_CONTROL_GPIO,0);
+    }
+#endif
+
     if (uart != nullptr) {
         send_esc_outputs();
     }
