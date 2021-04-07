@@ -21,7 +21,11 @@ extern const AP_HAL::HAL &hal;
 
 AP_CodevEsc::AP_CodevEsc(/* args */)
 {
-    channels_count = 4;
+    if (_singleton != nullptr) {
+        AP_HAL::panic("Fence must be singleton");
+    }
+
+    _singleton = this;
 }
 
 AP_CodevEsc::~AP_CodevEsc()
@@ -31,6 +35,7 @@ AP_CodevEsc::~AP_CodevEsc()
 
 void AP_CodevEsc::init()
 {
+    channels_count = 4;
     const AP_SerialManager &serial_manager = AP::serialmanager();
     uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_CodevEsc, 0);
     if (uart != nullptr) {
@@ -40,17 +45,6 @@ void AP_CodevEsc::init()
         // configure and initialise the esc
         configure_esc();
     }
-}
-
-
-void AP_CodevEsc::print_debug()
-{
-    if (uart == nullptr) {
-        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "UART is not Valid for Codev ESC");
-        return;
-    }
-
-    uart->write(send_request_buffer, sizeof(send_request_buffer));
 }
 
 
@@ -99,33 +93,20 @@ int AP_CodevEsc::configure_esc()
 	unlock_packet.len *= sizeof(unlock_packet.d.reqRun.rpm_flags[0]);
 	memset(unlock_packet.d.bytes, 0, sizeof(unlock_packet.d.bytes));
 
-    int unlock_times = 20;
-
-    // const uint8_t send[12] = {
-    //     0xfe, 0x08, 0x02, 0x4c, 0x44, 0x4c, 0x04, 0x4c, 0x04, 0x4c, 0x04, 0x45
-    // };
+    int unlock_times = 10;
 
 	while (unlock_times--) {
         packet_len = crc_packet(unlock_packet);
         uart->write(&unlock_packet.head,packet_len);
 
-        // uart->write(send,12);
-
 		/* Min Packet to Packet time is 1 Ms so use 2 */
-		hal.scheduler->delay_microseconds(2000);
+		hal.scheduler->delay_microseconds(1000);
 	}
-
     return 0;
 }
 
 void AP_CodevEsc::execute_codev_esc()
 {
-#ifdef HAL_PWR_AD_KEY_GPIO
-    if (hal.gpio->read(HAL_PWR_AD_KEY_GPIO) == 0) {
-        hal.gpio->write(HAL_POWER_CONTROL_GPIO,0);
-    }
-#endif
-
     if (uart != nullptr) {
         send_esc_outputs();
     }
@@ -133,10 +114,6 @@ void AP_CodevEsc::execute_codev_esc()
 
 void AP_CodevEsc::send_esc_outputs()
 {
-    if (uart == nullptr) {
-        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "uart is null, can not send to esc");
-    }
-
     uint16_t rpm[TAP_ESC_MAX_MOTOR_NUM] = {};
     for (uint8_t i = 0;i < 4; i++) {
         rpm[i] = motor_out[i];
@@ -274,4 +251,17 @@ uint8_t AP_CodevEsc::crc8_esc(uint8_t *p, uint8_t len)
 	}
 
 	return crc;
+}
+
+
+// singleton instance
+AP_CodevEsc *AP_CodevEsc::_singleton;
+
+namespace AP {
+
+AP_CodevEsc *AP_CodevEsc()
+{
+    return AP_CodevEsc::get_singleton();
+}
+
 }

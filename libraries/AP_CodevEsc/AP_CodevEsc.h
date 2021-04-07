@@ -32,7 +32,7 @@ public:
     /// Startup initialisation.
     void init();
 
-    void print_debug();
+    static AP_CodevEsc *get_singleton() { return _singleton; }
 
     bool uart_state() { return uart==nullptr?false:true;}
 
@@ -41,6 +41,8 @@ public:
     void execute_codev_esc();
 
 private:
+
+    static AP_CodevEsc *_singleton;
 
     int configure_esc();
     // strobe the corresponding buffer channel
