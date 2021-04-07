@@ -3049,6 +3049,46 @@ void GCS_MAVLINK::handle_rc_channels_override(const mavlink_message_t &msg)
 
 // allow override of RC channel values for HIL or for complete GCS
 // control of switch position and RC PWM values.
+void GCS_MAVLINK::handle_rc_channels(const mavlink_message_t &msg)
+{
+    if(msg.sysid != sysid_my_gcs()) {
+        return; // Only accept control from our gcs
+    }
+
+    const uint32_t tnow = AP_HAL::millis();
+
+    mavlink_rc_channels_t packet;
+    mavlink_msg_rc_channels_decode(&msg, &packet);
+
+    const uint16_t override_data[] = {
+        packet.chan1_raw,
+        packet.chan2_raw,
+        packet.chan3_raw,
+        packet.chan4_raw,
+        packet.chan5_raw,
+        packet.chan6_raw,
+        packet.chan7_raw,
+        packet.chan8_raw,
+        packet.chan9_raw,
+        packet.chan10_raw,
+        packet.chan11_raw,
+        packet.chan12_raw,
+        packet.chan13_raw,
+        packet.chan14_raw,
+        packet.chan15_raw,
+        packet.chan16_raw
+    };
+
+    for (uint8_t i=0; i<ARRAY_SIZE(override_data); i++) {
+        // Per MAVLink spec a value of UINT16_MAX means to ignore this field.
+        if (override_data[i] != UINT16_MAX) {
+            RC_Channels::set_override(i, override_data[i], tnow);
+        }
+    }
+}
+
+// allow override of RC channel values for HIL or for complete GCS
+// control of switch position and RC PWM values.
 void GCS_MAVLINK::handle_optical_flow(const mavlink_message_t &msg)
 {
     OpticalFlow *optflow = AP::opticalflow();
@@ -3241,6 +3281,10 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
 
     case MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE:
         handle_rc_channels_override(msg);
+        break;
+
+    case MAVLINK_MSG_ID_RC_CHANNELS:
+        handle_rc_channels(msg);
         break;
 
     case MAVLINK_MSG_ID_OPTICAL_FLOW:
