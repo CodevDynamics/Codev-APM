@@ -116,6 +116,12 @@ void AP_CodevEsc::send_esc_outputs()
 {
     uint16_t rpm[TAP_ESC_MAX_MOTOR_NUM] = {};
     for (uint8_t i = 0;i < 4; i++) {
+
+        AP_Motors *motors = AP_Motors::get_singleton();
+        if (motors->armed()) {
+            motor_out[i]= constrain_int16(motor_out[i],RPMMIN,RPMMAX);
+        }
+
         rpm[i] = motor_out[i];
 
         if ((rpm[i] & RUN_CHANNEL_VALUE_MASK) > RPMMAX) {
