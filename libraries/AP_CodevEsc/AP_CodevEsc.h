@@ -57,10 +57,4 @@ private:
     uint8_t    	  channels_count = 0; 		///< nnumber of ESC channels
     int8_t 	    responding_esc = -1;
     uint16_t motor_out[AP_MOTORS_MAX_NUM_MOTORS];
-
-
-
-    const uint8_t send_request_buffer[12] = {
-        0xfe, 0x08, 0x02, 0xb4, 0x44, 0xb4, 0x04, 0xb4, 0x04, 0xb4, 0x04, 0xec
-    };
 };
