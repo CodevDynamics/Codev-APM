@@ -178,6 +178,16 @@ void Copter::motors_output()
 
     // push all channels
     SRV_Channels::push();
+
+
+#ifdef HAL_CODEV_ESC_ENABLE
+    AP_CodevEsc *esc = AP_CodevEsc::get_singleton();
+    if(esc != nullptr && esc->uart_state()) {
+        esc->execute_codev_esc();
+    } else if (!esc->uart_state()) {
+        esc->init();
+    }
+#endif
 }
 
 // check for pilot stick input to trigger lost vehicle alarm

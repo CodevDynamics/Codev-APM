@@ -154,6 +154,10 @@
  # include <AP_Button/AP_Button.h>
 #endif
 
+#if HAL_POWER_BUTTON_ENABLE == ENABLED
+ # include <AP_Power_Button/AP_Power_Button.h>
+#endif
+
 #if OSD_ENABLED == ENABLED
  #include <AP_OSD/AP_OSD.h>
 #endif
@@ -187,6 +191,10 @@
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
 #include <SITL/SITL.h>
+#endif
+
+#if HAL_CODEV_ESC_ENABLE == ENABLED
+#include <AP_CodevEsc/AP_CodevEsc.h>
 #endif
 
 #include "mode.h"
@@ -506,6 +514,10 @@ private:
 #if MOUNT == ENABLED
     // current_loc uses the baro/gps solution for altitude rather than gps only.
     AP_Mount camera_mount{current_loc};
+#endif
+
+#if HAL_CODEV_ESC_ENABLE == ENABLED
+    AP_CodevEsc codev_esc;
 #endif
 
     // AC_Fence library to reduce fly-aways
