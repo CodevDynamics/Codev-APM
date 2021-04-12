@@ -50,5 +50,9 @@ void AP_Power_Button::update(void)
 
 bool AP_Power_Button::pwr_button_down()
 {
+#ifdef HAL_PWR_AD_KEY_GPIO
     return (hal.gpio->read(HAL_PWR_AD_KEY_GPIO) == 0);
+#else
+    return false;
+#endif
 }
