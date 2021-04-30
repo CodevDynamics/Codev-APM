@@ -8,7 +8,7 @@
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <AP_Motors/AP_Motors_Class.h>
 
-#define BOARD_TAP_ESC_MODE 13
+#define BOARD_TAP_ESC_MODE 2
 
 
 // allow the board to override the number (or maxiumum number) of LED's it has
