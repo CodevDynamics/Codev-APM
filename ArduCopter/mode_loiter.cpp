@@ -94,8 +94,10 @@ void ModeLoiter::run()
         // process pilot's roll and pitch input
         loiter_nav->set_pilot_desired_acceleration(target_roll, target_pitch, G_Dt);
 
-        // get pilot's desired yaw rate
-        target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
+        // get pilot's desired yaw rate only when flying
+        if (!copter.ap.land_complete_maybe) {
+            target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
+        }
 
         // get pilot desired climb rate
         target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
