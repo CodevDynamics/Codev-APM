@@ -72,7 +72,7 @@ bool RC_Channels::read_input(void)
         return false;
     }
 
-    has_new_overrides = false;
+    // has_new_overrides = false;
 
     bool success = false;
     for (uint8_t i=0; i<NUM_RC_CHANNELS; i++) {
