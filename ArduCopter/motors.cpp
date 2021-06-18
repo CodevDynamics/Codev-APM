@@ -180,7 +180,7 @@ void Copter::motors_output()
     SRV_Channels::push();
 
 
-#ifdef HAL_CODEV_ESC_ENABLE
+#if HAL_CODEV_ESC_ENABLE
     AP_CodevEsc *esc = AP_CodevEsc::get_singleton();
     if(esc != nullptr && esc->uart_state()) {
         esc->execute_codev_esc();

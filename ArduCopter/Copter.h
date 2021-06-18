@@ -193,7 +193,7 @@
 #include <SITL/SITL.h>
 #endif
 
-#if HAL_CODEV_ESC_ENABLE == ENABLED
+#if HAL_CODEV_ESC_ENABLE
 #include <AP_CodevEsc/AP_CodevEsc.h>
 #endif
 
@@ -516,7 +516,7 @@ private:
     AP_Mount camera_mount{current_loc};
 #endif
 
-#if HAL_CODEV_ESC_ENABLE == ENABLED
+#if HAL_CODEV_ESC_ENABLE
     AP_CodevEsc codev_esc;
 #endif
 
@@ -693,6 +693,7 @@ private:
     float get_avoidance_adjusted_climbrate(float target_rate);
     void set_accel_throttle_I_from_pilot_throttle();
     void rotate_body_frame_to_NE(float &x, float &y);
+    int16_t get_alt_above_ground_cm(void);
     uint16_t get_pilot_speed_dn();
 
 #if ADSB_ENABLED == ENABLED

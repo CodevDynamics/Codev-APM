@@ -764,6 +764,10 @@
 // Developer Items
 //
 
+#ifndef HAL_CODEV_ESC_ENABLE
+  #define HAL_CODEV_ESC_ENABLE DISABLED
+#endif
+
 //use this to completely disable FRSKY TELEM
 #ifndef FRSKY_TELEM_ENABLED
   #  define FRSKY_TELEM_ENABLED          ENABLED
