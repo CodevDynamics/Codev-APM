@@ -184,6 +184,7 @@ void Copter::motors_output()
     AP_CodevEsc *esc = AP_CodevEsc::get_singleton();
     if(esc != nullptr && esc->uart_state()) {
         esc->execute_codev_esc();
+        esc->set_vehicle_control_mode((uint8_t)control_mode);
     } else if (!esc->uart_state()) {
         esc->init();
     }

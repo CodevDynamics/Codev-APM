@@ -133,78 +133,7 @@ void AP_CodevEsc::send_esc_outputs()
 
         // apply the led color
         if (i < BOARD_MAX_LEDS) {
-			// switch (_led_control_data.leds[i].color) {
-			// case led_control_s::COLOR_RED:
-			// 	rpm[i] |= RUN_RED_LED_ON_MASK;
-			// 	break;
-
-			// case led_control_s::COLOR_GREEN:
-			// 	if (_vehicle_status.nav_state == vehicle_status_s::NAVIGATION_STATE_POSCTL) {
-			// 		if (i == 1 || i == 3) {
-			// 			rpm[1] |= RUN_RED_LED_ON_MASK;
-			// 			rpm[3] |= RUN_GREEN_LED_ON_MASK;
-
-			// 		} else {
-			// 			rpm[i] |= RUN_GREEN_LED_ON_MASK;
-			// 		}
-
-			// 	} else {
-			// 		rpm[i] |= RUN_GREEN_LED_ON_MASK;
-			// 	}
-
-			// 	break;
-
-			// case led_control_s::COLOR_BLUE:
-			// 	rpm[i] |= RUN_BLUE_LED_ON_MASK;
-			// 	break;
-
-			// case led_control_s::COLOR_AMBER: //make it the same as yellow
-			// case led_control_s::COLOR_YELLOW:
-			// 	rpm[i] |= RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK;
-			// 	break;
-
-			// case led_control_s::COLOR_PURPLE:
-			// 	rpm[i] |= RUN_RED_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
-			// 	break;
-
-			// case led_control_s::COLOR_CYAN:
-			// 	rpm[i] |= RUN_GREEN_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
-			// 	break;
-
-			// case led_control_s::COLOR_WHITE:
-			// 	rpm[i] |= RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
-			// 	break;
-
-			// default: // led_control_s::COLOR_OFF
-			// 	break;
-			// }
-
-            // if (i == 1 || i == 3) {
-            //     rpm[1] |= RUN_RED_LED_ON_MASK;
-            //     rpm[3] |= RUN_GREEN_LED_ON_MASK;
-            // }  else {
-            //     rpm[i] |= RUN_GREEN_LED_ON_MASK;
-            // }
-
-            // notes: This is used for debug the motors
-            switch (i)
-            {
-            case 0:
-                rpm[0] |= RUN_RED_LED_ON_MASK;
-                break;
-            case 1:
-                rpm[1] |= RUN_GREEN_LED_ON_MASK;
-                break;
-            case 2:
-                rpm[2] |= RUN_BLUE_LED_ON_MASK;
-                break;
-            case 3:
-                rpm[3] |= RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
-                break;
-
-            default:
-                break;
-            }
+            set_led_status(i,control_mode,rpm[i]);
 		}
     }
 
@@ -229,6 +158,100 @@ void AP_CodevEsc::send_esc_outputs()
     }
 }
 
+void AP_CodevEsc::set_led_status(uint8_t id,uint8_t mode,uint16_t& led_status)
+{
+    unsigned long _esc_time_now_us = AP_HAL::micros64();
+    uint16_t tail_left_led = 0;
+    uint16_t tail_right_led = 0;
+
+    switch ((int8_t)mode)
+    {
+    case ALT_HOLD:
+        tail_left_led = RUN_BLUE_LED_ON_MASK;
+        tail_right_led = RUN_BLUE_LED_ON_MASK;
+        break;
+    case LOITER:
+        tail_left_led = RUN_RED_LED_ON_MASK;
+        tail_right_led = RUN_GREEN_LED_ON_MASK;
+        break;
+    case RTL:
+        // yellow color
+        tail_left_led = RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK;
+        tail_right_led = RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK;
+        break;
+
+    case AUTO:
+    case GUIDED:
+    case LAND:
+        // purple color
+        tail_left_led = RUN_RED_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
+        tail_right_led = RUN_RED_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
+        break;
+
+    default:
+        tail_left_led = RUN_RED_LED_ON_MASK;
+        tail_right_led = RUN_RED_LED_ON_MASK;
+        break;
+    }
+
+    if (_esc_led_on_time_us == 0) {
+        _esc_led_on_time_us = AP_HAL::micros64();
+        led_on_off = 0;
+    }
+
+    // open led if on
+    if (led_on_off == 0) {
+        switch (id)
+        {
+        case 0:
+            led_status |= RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
+            break;
+        case 1:
+            led_status |= tail_left_led;
+            break;
+        case 2:
+            led_status |= RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
+            break;
+        case 3:
+            led_status |= tail_right_led;
+            break;
+
+        default:
+            break;
+        }
+
+        if (_esc_time_now_us - _esc_led_on_time_us > LED_ON_TIME_MS * 1000) {
+            led_on_off = 1;
+            _esc_led_on_time_us = _esc_time_now_us;
+        }
+    } else {
+
+        // Turn off led
+        switch (id)
+        {
+        case 0:
+            led_status |= RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
+            break;
+        case 1:
+            led_status |= RUN_RED_LED_OFF_MASK | RUN_GREEN_LED_OFF_MASK | RUN_BLUE_LED_OFF_MASK;
+            break;
+        case 2:
+            led_status |= RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
+            break;
+        case 3:
+            led_status |= RUN_RED_LED_OFF_MASK | RUN_GREEN_LED_OFF_MASK | RUN_BLUE_LED_OFF_MASK;
+            break;
+
+        default:
+            break;
+        }
+
+        if (_esc_time_now_us - _esc_led_on_time_us > LED_OFF_TIME_MS * 1000) {
+            led_on_off = 0;
+            _esc_led_on_time_us = _esc_time_now_us;
+        }
+    }
+}
 
 
 void AP_CodevEsc::select_responder(uint8_t channel)

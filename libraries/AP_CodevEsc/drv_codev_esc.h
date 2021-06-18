@@ -48,6 +48,11 @@
 #define RUN_RED_LED_ON_MASK      (uint16_t)0x0800
 #define RUN_GREEN_LED_ON_MASK    (uint16_t)0x1000
 #define RUN_BLUE_LED_ON_MASK     (uint16_t)0x2000
+
+#define RUN_RED_LED_OFF_MASK      (uint16_t)0x0000
+#define RUN_GREEN_LED_OFF_MASK    (uint16_t)0x0000
+#define RUN_BLUE_LED_OFF_MASK     (uint16_t)0x0000
+
 #define RUN_LED_ON_MASK          (uint16_t)0x3800
 #define RUN_FEEDBACK_ENABLE_MASK (uint16_t)0x4000
 #define RUN_REVERSE_MASK         (uint16_t)0x8000

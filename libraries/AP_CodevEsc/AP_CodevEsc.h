@@ -16,6 +16,10 @@
 #define BOARD_MAX_LEDS 4
 #endif
 
+
+#define LED_ON_TIME_MS  50
+#define LED_OFF_TIME_MS 1450
+
 // Circular from back right in CCW direction
 #define ESC_POS {2, 1, 0, 3, 4, 5, 6, 7}
 // 0 is CW, 1 is CCW
@@ -38,7 +42,36 @@ public:
 
     void set_output_pwm(uint8_t chan,uint16_t pwm){ motor_out[chan] = pwm;};
 
+    void set_vehicle_control_mode(uint8_t mode) {control_mode = mode;};
+
     void execute_codev_esc();
+
+    enum CONTROL_MODE_TYPE {
+        STABILIZE =     0,  // manual airframe angle with manual throttle
+        ACRO =          1,  // manual body-frame angular rate with manual throttle
+        ALT_HOLD =      2,  // manual airframe angle with automatic throttle
+        AUTO =          3,  // fully automatic waypoint control using mission commands
+        GUIDED =        4,  // fully automatic fly to coordinate or fly at velocity/direction using GCS immediate commands
+        LOITER =        5,  // automatic horizontal acceleration with automatic throttle
+        RTL =           6,  // automatic return to launching point
+        CIRCLE =        7,  // automatic circular flight with automatic throttle
+        LAND =          9,  // automatic landing with horizontal position control
+        DRIFT =        11,  // semi-automous position, yaw and throttle control
+        SPORT =        13,  // manual earth-frame angular rate control with manual throttle
+        FLIP =         14,  // automatically flip the vehicle on the roll axis
+        AUTOTUNE =     15,  // automatically tune the vehicle's roll and pitch gains
+        POSHOLD =      16,  // automatic position hold with manual override, with automatic throttle
+        BRAKE =        17,  // full-brake using inertial/GPS system, no pilot input
+        THROW =        18,  // throw to launch mode using inertial/GPS system, no pilot input
+        AVOID_ADSB =   19,  // automatic avoidance of obstacles in the macro scale - e.g. full-sized aircraft
+        GUIDED_NOGPS = 20,  // guided mode but only accepts attitude and altitude
+        SMART_RTL =    21,  // SMART_RTL returns to home by retracing its steps
+        FLOWHOLD  =    22,  // FLOWHOLD holds position with optical flow without rangefinder
+        FOLLOW    =    23,  // follow attempts to follow another vehicle or ground station
+        ZIGZAG    =    24,  // ZIGZAG mode is able to fly in a zigzag manner with predefined point A and point B
+        SYSTEMID  =    25,  // System ID mode produces automated system identification signals in the controllers
+        AUTOROTATE =   26,  // Autonomous autorotation
+    };
 
 private:
 
@@ -50,6 +83,7 @@ private:
     void send_esc_outputs();
     uint8_t crc_packet(EscPacket &p);
     uint8_t crc8_esc(uint8_t *p, uint8_t len);
+    void set_led_status(uint8_t id,uint8_t control_mode,uint16_t& led_status);
 
     AP_HAL::UARTDriver *uart = nullptr;
     uint32_t baudrate = 0;
@@ -57,4 +91,8 @@ private:
     uint8_t    	  channels_count = 0; 		///< nnumber of ESC channels
     int8_t 	    responding_esc = -1;
     uint16_t motor_out[AP_MOTORS_MAX_NUM_MOTORS];
+    uint8_t led_on_off = 0;
+    uint8_t control_mode = 0;
+
+    unsigned long _esc_led_on_time_us = 0;
 };

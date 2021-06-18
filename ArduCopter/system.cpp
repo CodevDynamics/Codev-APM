@@ -264,7 +264,7 @@ void Copter::init_ardupilot()
     // flag that initialisation has completed
     ap.initialised = true;
 
-#ifdef AP_CODEV_ESC_ENABLE
+#ifdef HAL_CODEV_ESC_ENABLE
     codev_esc.init();
 #endif
 #if AP_PARAM_KEY_DUMP
