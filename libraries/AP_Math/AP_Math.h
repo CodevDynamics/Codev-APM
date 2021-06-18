@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <type_traits>
 
+#include "stdio.h"
+
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
 
@@ -182,6 +184,33 @@ float sq(const T val)
     float v = static_cast<float>(val);
     return v*v;
 }
+
+/*
+ * Constant, linear, constant function with the two corner points as parameters
+ * y_high          -------
+ *                /
+ *               /
+ *              /
+ * y_low -------
+ *         x_low   x_high
+ */
+template<typename T>
+T gradual(const T value, const T x_low, const T x_high, const T y_low, const T y_high)
+{
+	if (value < x_low) {
+		return y_low;
+
+	} else if (value > x_high) {
+		return y_high;
+
+	} else {
+		/* linear function between the two points */
+		T a = (y_high - y_low) / (x_high - x_low);
+		T b = y_low - a * x_low;
+		return  a * value + b;
+	}
+}
+
 
 /*
  * Variadic template for calculating the square norm of a vector of any
