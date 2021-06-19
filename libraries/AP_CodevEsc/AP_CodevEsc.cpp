@@ -14,6 +14,7 @@
 */
 
 #include "AP_CodevEsc.h"
+#include <AP_Arming/AP_Arming.h>
 
 
 
@@ -163,6 +164,9 @@ void AP_CodevEsc::set_led_status(uint8_t id,uint8_t mode,uint16_t& led_status)
     unsigned long _esc_time_now_us = AP_HAL::micros64();
     uint16_t tail_left_led = 0;
     uint16_t tail_right_led = 0;
+    bool arm_state = false;
+    bool arm_checks_status = false;
+    AP_Arming &ap_arm = AP::arming();
 
     switch ((int8_t)mode)
     {
@@ -192,6 +196,17 @@ void AP_CodevEsc::set_led_status(uint8_t id,uint8_t mode,uint16_t& led_status)
         tail_left_led = RUN_RED_LED_ON_MASK;
         tail_right_led = RUN_RED_LED_ON_MASK;
         break;
+    }
+
+    arm_state = ap_arm.is_armed();
+
+    if (!arm_state) {
+        arm_checks_status = ap_arm.pre_arm_checks(true);
+
+        if (!arm_checks_status) {
+            tail_left_led = RUN_BLUE_LED_ON_MASK;
+            tail_right_led = RUN_BLUE_LED_ON_MASK;
+        }
     }
 
     if (_esc_led_on_time_us == 0) {
