@@ -201,7 +201,7 @@ void AP_CodevEsc::set_led_status(uint8_t id,uint8_t mode,uint16_t& led_status)
     arm_state = ap_arm.is_armed();
 
     if (!arm_state) {
-        arm_checks_status = ap_arm.pre_arm_checks(true);
+        arm_checks_status = ap_arm.get_pre_arm_passed();
 
         if (!arm_checks_status) {
             tail_left_led = RUN_BLUE_LED_ON_MASK;

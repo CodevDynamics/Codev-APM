@@ -71,6 +71,9 @@ public:
     // get expected magnetic field strength
     uint16_t compass_magfield_expected() const;
 
+    void set_pre_arm_passed(bool result) {_pre_arm_passed = result;}
+    bool get_pre_arm_passed() {return _pre_arm_passed;}
+
     // rudder arming support
     enum class RudderArming {
         IS_DISABLED  = 0, // DISABLED leaks in from vehicle defines.h
@@ -149,6 +152,8 @@ protected:
 private:
 
     static AP_Arming *_singleton;
+
+    bool _pre_arm_passed = false;
 
     bool ins_accels_consistent(const AP_InertialSensor &ins);
     bool ins_gyros_consistent(const AP_InertialSensor &ins);
