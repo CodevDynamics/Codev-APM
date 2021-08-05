@@ -94,14 +94,36 @@ int AP_CodevEsc::configure_esc()
 	unlock_packet.len *= sizeof(unlock_packet.d.reqRun.rpm_flags[0]);
 	memset(unlock_packet.d.bytes, 0, sizeof(unlock_packet.d.bytes));
 
-    int unlock_times = 10;
+    uint16_t rpm[TAP_ESC_MAX_MOTOR_NUM] = {};
+
+    for (uint8_t i = 0; i < channels_count; i++) {
+        rpm[i] = RPMSTOPPED;
+        rpm[i] |= RUN_RED_LED_ON_MASK | RUN_GREEN_LED_ON_MASK | RUN_BLUE_LED_ON_MASK;
+    }
+
+    int unlock_times = 5;
 
 	while (unlock_times--) {
+
+        rpm[_device_mux_map[responding_esc]] |= RUN_FEEDBACK_ENABLE_MASK;
+
+        for (uint8_t i = 0; i < channels_count; i++) {
+		    unlock_packet.d.reqRun.rpm_flags[i] = rpm[i];
+	    }
+
+        if (responding_esc >= 0) {
+            select_responder(responding_esc);
+        }
+
         packet_len = crc_packet(unlock_packet);
         uart->write(&unlock_packet.head,packet_len);
 
+        if (++responding_esc >= channels_count) {
+            responding_esc = 0;
+        }
+
 		/* Min Packet to Packet time is 1 Ms so use 2 */
-		hal.scheduler->delay_microseconds(1000);
+		hal.scheduler->delay_microseconds(100);
 	}
     return 0;
 }
@@ -303,7 +325,7 @@ AP_CodevEsc *AP_CodevEsc::_singleton;
 
 namespace AP {
 
-AP_CodevEsc *AP_CodevEsc()
+AP_CodevEsc *codevesc()
 {
     return AP_CodevEsc::get_singleton();
 }

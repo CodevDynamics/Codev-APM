@@ -96,3 +96,7 @@ private:
 
     unsigned long _esc_led_on_time_us = 0;
 };
+
+namespace AP {
+    AP_CodevEsc *codevesc();
+};
