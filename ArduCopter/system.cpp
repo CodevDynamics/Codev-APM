@@ -55,6 +55,10 @@ void Copter::init_ardupilot()
     // setup first port early to allow BoardConfig to report errors
     gcs().setup_console();
 
+#if HAL_CODEV_ESC_ENABLE
+    codev_esc.init();
+#endif
+
     // Register mavlink_delay_cb, which will run anytime you have
     // more than 5ms remaining in your call to hal.scheduler->delay
     hal.scheduler->register_delay_callback(mavlink_delay_cb_static, 5);
@@ -264,9 +268,6 @@ void Copter::init_ardupilot()
     // flag that initialisation has completed
     ap.initialised = true;
 
-#if HAL_CODEV_ESC_ENABLE
-    codev_esc.init();
-#endif
 #if AP_PARAM_KEY_DUMP
     AP_Param::show_all(hal.console, true);
 #endif
