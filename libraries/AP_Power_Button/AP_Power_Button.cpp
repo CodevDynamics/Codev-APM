@@ -16,6 +16,7 @@
 #include "AP_Power_Button.h"
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <GCS_MAVLink/GCS.h>
+#include <AP_Arming/AP_Arming.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -31,6 +32,10 @@ AP_Power_Button::AP_Power_Button(void)
 void AP_Power_Button::update(void)
 {
 #ifdef HAL_PWR_AD_KEY_GPIO
+    if (AP::arming().is_armed()) {
+        return;
+    }
+
     if (pwr_button_down() && last_power_down_time_ms == 0) {
         last_power_down_time_ms = AP_HAL::millis64();
     } else {
