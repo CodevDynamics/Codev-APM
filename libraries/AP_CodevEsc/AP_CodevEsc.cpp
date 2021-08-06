@@ -105,6 +105,8 @@ int AP_CodevEsc::configure_esc()
 
 	while (unlock_times--) {
 
+        hal.scheduler->delay_microseconds(30000);
+
         rpm[_device_mux_map[responding_esc]] |= RUN_FEEDBACK_ENABLE_MASK;
 
         for (uint8_t i = 0; i < channels_count; i++) {
