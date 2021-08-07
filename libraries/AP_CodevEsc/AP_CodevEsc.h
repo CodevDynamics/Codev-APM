@@ -15,7 +15,9 @@
 #ifndef BOARD_MAX_LEDS
 #define BOARD_MAX_LEDS 4
 #endif
-
+#ifndef HAL_ESC_NUM
+#define HAL_ESC_NUM 4
+#endif
 
 #define LED_ON_TIME_MS  50
 #define LED_OFF_TIME_MS 1450
@@ -45,6 +47,10 @@ public:
     void set_vehicle_control_mode(uint8_t mode) {control_mode = mode;};
 
     void execute_codev_esc();
+    void receive_esc_status();
+
+    Esc_Status _esc_status[HAL_ESC_NUM] = {};
+
 
     enum CONTROL_MODE_TYPE {
         STABILIZE =     0,  // manual airframe angle with manual throttle
@@ -81,6 +87,8 @@ private:
     // strobe the corresponding buffer channel
 	void select_responder(uint8_t channel);
     void send_esc_outputs();
+    void read_data_from_uart(ESC_UART_BUF *const uart_buf);
+    int parse_tap_esc_feedback(ESC_UART_BUF *const serial_buf, EscPacket *const packetdata);
     uint8_t crc_packet(EscPacket &p);
     uint8_t crc8_esc(uint8_t *p, uint8_t len);
     void set_led_status(uint8_t id,uint8_t control_mode,uint16_t& led_status);

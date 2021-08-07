@@ -167,6 +167,15 @@ typedef  struct {
 
 } EscPacket;
 
+typedef  struct  {
+    uint8_t id;
+	uint8_t state;
+    uint8_t temperature;
+    uint16_t current;
+	int16_t rpm;
+	uint16_t esc_set;
+} Esc_Status;
+
 #define UART_BUFFER_SIZE 128
 typedef  struct {
 	uint8_t head;
