@@ -211,6 +211,10 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #if OSD_ENABLED == ENABLED
     SCHED_TASK(publish_osd_info, 1, 10),
 #endif
+
+#if HAL_CODEV_ESC_ENABLE
+    SCHED_TASK_CLASS(AP_CodevEsc,         &copter.codev_esc,        receive_esc_status,         400,  50),
+#endif
 };
 
 constexpr int8_t Copter::_failsafe_priorities[7];
@@ -382,6 +386,10 @@ void Copter::ten_hz_logging_loop()
     }
 #if FRAME_CONFIG == HELI_FRAME
     Log_Write_Heli();
+#endif
+
+#ifdef LOG_MOTOR_STATUS
+    logger.Write_MOTORS();
 #endif
 }
 
