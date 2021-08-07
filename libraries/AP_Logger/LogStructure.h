@@ -933,12 +933,22 @@ struct PACKED log_GPS_SBF_EVENT {
 
 struct PACKED log_Esc {
     LOG_PACKET_HEADER;
-    uint64_t time_us;     
+    uint64_t time_us;
     int32_t rpm;
     uint16_t voltage;
     uint16_t current;
     int16_t temperature;
     uint16_t current_tot;
+};
+
+struct PACKED log_Motor_Status {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint8_t state;
+    uint8_t temperature;
+    int32_t rpm;
+    uint16_t current;
+    uint16_t esc_set;
 };
 
 struct PACKED log_CSRV {
@@ -1246,6 +1256,11 @@ struct PACKED log_Arm_Disarm {
 #define ESC_UNITS "sqvAO-"
 #define ESC_MULTS "FBBBB-"
 
+#define MOTOR_LABELS "TimeUS,Sta,Temp,RPM,Curr,RSet"
+#define MOTOR_FMT   "QBBiHH"
+#define MOTOR_UNITS "s-OqA-"
+#define MOTOR_MULTS "F000B0"
+
 #define GPA_LABELS "TimeUS,VDop,HAcc,VAcc,SAcc,YAcc,VV,SMS,Delta"
 #define GPA_FMT   "QCCCCfBIH"
 #define GPA_UNITS "smmmnd-ss"
@@ -1535,6 +1550,14 @@ struct PACKED log_Arm_Disarm {
       "ESC7",  ESC_FMT, ESC_LABELS, ESC_UNITS, ESC_MULTS }, \
     { LOG_ESC8_MSG, sizeof(log_Esc), \
       "ESC8",  ESC_FMT, ESC_LABELS, ESC_UNITS, ESC_MULTS }, \
+    { LOG_MOT1_MSG, sizeof(log_Motor_Status), \
+      "MOT1",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
+    { LOG_MOT2_MSG, sizeof(log_Motor_Status), \
+      "MOT2",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
+    { LOG_MOT3_MSG, sizeof(log_Motor_Status), \
+      "MOT3",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
+    { LOG_MOT4_MSG, sizeof(log_Motor_Status), \
+      "MOT4",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
     { LOG_CSRV_MSG, sizeof(log_CSRV), \
       "CSRV","QBfffB","TimeUS,Id,Pos,Force,Speed,Pow", "s#---%", "F-0000" }, \
     { LOG_CESC_MSG, sizeof(log_CESC), \
@@ -1670,6 +1693,10 @@ enum LogMessages : uint8_t {
     LOG_XKFD_MSG,
     LOG_XKV1_MSG,
     LOG_XKV2_MSG,
+    LOG_MOT1_MSG,
+    LOG_MOT2_MSG,
+    LOG_MOT3_MSG,
+    LOG_MOT4_MSG,
 
     LOG_FORMAT_MSG = 128, // this must remain #128
 
