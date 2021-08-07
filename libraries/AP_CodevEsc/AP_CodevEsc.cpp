@@ -36,7 +36,7 @@ AP_CodevEsc::~AP_CodevEsc()
 
 void AP_CodevEsc::init()
 {
-    channels_count = 4;
+    channels_count = HAL_ESC_NUM;
     const AP_SerialManager &serial_manager = AP::serialmanager();
     uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_CodevEsc, 0);
     if (uart != nullptr) {
@@ -137,10 +137,159 @@ void AP_CodevEsc::execute_codev_esc()
     }
 }
 
+void AP_CodevEsc::receive_esc_status()
+{
+    ESC_UART_BUF 	_uartbuf = {};
+	EscPacket 	_packet = {};
+
+    read_data_from_uart(&_uartbuf);
+    if (!parse_tap_esc_feedback(&_uartbuf, &_packet)) {
+        if (_packet.msg_id == ESCBUS_MSG_ID_RUN_INFO) {
+            RunInfoRepsonse &feed_back_data = _packet.d.rspRunInfo;
+
+                if (feed_back_data.channelID < channels_count) {
+                    _esc_status[feed_back_data.channelID].id = feed_back_data.channelID;
+                    _esc_status[feed_back_data.channelID].state = feed_back_data.ESCStatus;
+                    _esc_status[feed_back_data.channelID].current = feed_back_data.current;
+                    _esc_status[feed_back_data.channelID].rpm = feed_back_data.speed;
+                    _esc_status[feed_back_data.channelID].esc_set = motor_out[feed_back_data.channelID];
+                    _esc_status[feed_back_data.channelID].temperature = feed_back_data.temperature;
+                }
+
+        }
+    }
+}
+
+
+void AP_CodevEsc::read_data_from_uart(ESC_UART_BUF *const uart_buf)
+{
+    if (uart == nullptr) {
+        return;
+    }
+
+    uint8_t tmp_serial_buf[UART_BUFFER_SIZE] = {};
+    uint8_t buffer_count = 0;
+
+    // read any available characters
+    int16_t nbytes = uart->available();
+
+    int16_t len = nbytes;
+
+    while(nbytes-- > 0 && len < UART_BUFFER_SIZE) {
+        uint8_t c = uart->read();
+        tmp_serial_buf[buffer_count++] = c;
+
+        if (buffer_count >= UART_BUFFER_SIZE -1) {
+            buffer_count = 0;
+        }
+    }
+
+    if (len > 0 && (uart_buf->dat_cnt + len < UART_BUFFER_SIZE)) {
+		for (int i = 0; i < len; i++) {
+			uart_buf->esc_feedback_buf[uart_buf->tail++] = tmp_serial_buf[i];
+			uart_buf->dat_cnt++;
+
+			if (uart_buf->tail >= UART_BUFFER_SIZE) {
+				uart_buf->tail = 0;
+			}
+		}
+
+	} else if (len < 0) {
+		return;
+	}
+}
+
+
+int AP_CodevEsc::parse_tap_esc_feedback(ESC_UART_BUF *const serial_buf, EscPacket *const packetdata)
+{
+	static PARSR_ESC_STATE state = HEAD;
+	static uint8_t data_index = 0;
+	static uint8_t crc_data_cal;
+
+	if (serial_buf->dat_cnt > 0) {
+		int count = serial_buf->dat_cnt;
+
+		for (int i = 0; i < count; i++) {
+			switch (state) {
+			case HEAD:
+				if (serial_buf->esc_feedback_buf[serial_buf->head] == PACKET_HEAD) {
+					packetdata->head = PACKET_HEAD; //just_keep the format
+					state = LEN;
+				}
+
+				break;
+
+			case LEN:
+				if (serial_buf->esc_feedback_buf[serial_buf->head] < sizeof(packetdata->d)) {
+					packetdata->len = serial_buf->esc_feedback_buf[serial_buf->head];
+					state = ID;
+
+				} else {
+					state = HEAD;
+				}
+
+				break;
+
+			case ID:
+				if (serial_buf->esc_feedback_buf[serial_buf->head] < ESCBUS_MSG_ID_MAX_NUM) {
+					packetdata->msg_id = serial_buf->esc_feedback_buf[serial_buf->head];
+					data_index = 0;
+					state = DATA;
+
+				} else {
+					state = HEAD;
+				}
+
+				break;
+
+			case DATA:
+				packetdata->d.bytes[data_index++] = serial_buf->esc_feedback_buf[serial_buf->head];
+
+				if (data_index >= packetdata->len) {
+
+					crc_data_cal = crc8_esc((uint8_t *)(&packetdata->len), packetdata->len + 2);
+					state = CRC1;
+				}
+
+				break;
+
+			case CRC1:
+				if (crc_data_cal == serial_buf->esc_feedback_buf[serial_buf->head]) {
+					packetdata->crc_data = serial_buf->esc_feedback_buf[serial_buf->head];
+
+					if (++serial_buf->head >= UART_BUFFER_SIZE) {
+						serial_buf->head = 0;
+					}
+
+					serial_buf->dat_cnt--;
+					state = HEAD;
+					return 0;
+				}
+
+				state = HEAD;
+				break;
+
+			default:
+				state = HEAD;
+				break;
+
+			}
+
+			if (++serial_buf->head >= UART_BUFFER_SIZE) {
+				serial_buf->head = 0;
+			}
+
+			serial_buf->dat_cnt--;
+		}
+	}
+
+	return -1;
+}
+
 void AP_CodevEsc::send_esc_outputs()
 {
     uint16_t rpm[TAP_ESC_MAX_MOTOR_NUM] = {};
-    for (uint8_t i = 0;i < 4; i++) {
+    for (uint8_t i = 0;i < channels_count; i++) {
 
         AP_Motors *motors = AP_Motors::get_singleton();
         if (motors->armed()) {
