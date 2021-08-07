@@ -226,6 +226,7 @@ public:
                      LogErrorCode error_code);
     void Write_GPS(uint8_t instance, uint64_t time_us=0);
     void Write_IMU();
+    void Write_MOTORS();
     void Write_IMUDT(uint64_t time_us, uint8_t imu_mask);
     bool Write_ISBH(uint16_t seqno,
                         AP_InertialSensor::IMU_SENSOR_TYPE sensor_type,
@@ -255,6 +256,7 @@ public:
     void Write_Camera(const Location &current_loc, uint64_t timestamp_us=0);
     void Write_Trigger(const Location &current_loc);
     void Write_ESC(uint8_t id, uint64_t time_us, int32_t rpm, uint16_t voltage, uint16_t current, int16_t temperature, uint16_t current_tot);
+    void Write_Motor_Status(uint8_t id, uint8_t state,  uint8_t temperature, uint16_t current,int16_t rpm, uint16_t esc_set);
     void Write_ServoStatus(uint64_t time_us, uint8_t id, float position, float force, float speed, uint8_t power_pct);
     void Write_ESCStatus(uint64_t time_us, uint8_t id, uint32_t error_count, float voltage, float current, float temperature, int32_t rpm, uint8_t power_pct);
     void Write_Attitude(const Vector3f &targets);

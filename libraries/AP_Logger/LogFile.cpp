@@ -17,6 +17,9 @@
 #include "AP_Logger_File.h"
 #include "AP_Logger_MAVLink.h"
 #include "LoggerMessageWriter.h"
+#ifdef HAL_CODEV_ESC_ENABLE
+#include <AP_CodevEsc/AP_CodevEsc.h>
+#endif
 
 extern const AP_HAL::HAL& hal;
 
@@ -329,6 +332,24 @@ void AP_Logger::Write_IMU()
     }
 
     Write_IMU_instance(time_us, 2, LOG_IMU3_MSG);
+}
+
+// Write an raw motors data packet
+void AP_Logger::Write_MOTORS()
+{
+#ifdef HAL_ESC_NUM
+    const AP_CodevEsc *motor_esc = AP::codevesc();
+    for (int i = 0; i < HAL_ESC_NUM; i++) {
+        uint8_t id = motor_esc->_esc_status[i].id;
+        uint8_t state = motor_esc->_esc_status[i].state;
+        uint16_t current = motor_esc->_esc_status[i].current;
+        int16_t rpm = motor_esc->_esc_status[i].rpm;
+        uint16_t esc_set = motor_esc->_esc_status[i].esc_set;
+        uint8_t temperature = motor_esc->_esc_status[i].temperature;
+
+        Write_Motor_Status(id, state, temperature, current, rpm, esc_set);
+    }
+#endif
 }
 
 // Write an accel/gyro delta time data packet
@@ -794,6 +815,30 @@ void AP_Logger::Write_ESC(uint8_t id, uint64_t time_us, int32_t rpm, uint16_t vo
         current     : current,
         temperature : temperature,
         current_tot : current_tot
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
+// Write Motor status messages
+//   id starts from 0
+//   rpm is RPM/s (rpm)
+//   current is in centi-amps
+//   temperature is in centi-degrees Celsius
+//   esc_set is in pwm set value
+void AP_Logger::Write_Motor_Status(uint8_t id, uint8_t state, uint8_t temperature, uint16_t current, int16_t rpm, uint16_t esc_set)
+{
+    // sanity check id
+    if (id >= 4) {
+        return;
+    }
+    const struct log_Motor_Status pkt{
+        LOG_PACKET_HEADER_INIT(uint8_t(LOG_MOT1_MSG + id)),
+        time_us     : AP_HAL::micros64(),
+        state       : state,
+        temperature : temperature,
+        rpm         : rpm,
+        current     : current,
+        esc_set     : esc_set
     };
     WriteBlock(&pkt, sizeof(pkt));
 }
