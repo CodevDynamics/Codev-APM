@@ -1558,6 +1558,14 @@ struct PACKED log_Arm_Disarm {
       "MOT3",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
     { LOG_MOT4_MSG, sizeof(log_Motor_Status), \
       "MOT4",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
+    { LOG_MOT5_MSG, sizeof(log_Motor_Status), \
+      "MOT5",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
+    { LOG_MOT6_MSG, sizeof(log_Motor_Status), \
+      "MOT6",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
+    { LOG_MOT7_MSG, sizeof(log_Motor_Status), \
+      "MOT7",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
+    { LOG_MOT8_MSG, sizeof(log_Motor_Status), \
+      "MOT8",  MOTOR_FMT, MOTOR_LABELS, MOTOR_UNITS, MOTOR_MULTS }, \
     { LOG_CSRV_MSG, sizeof(log_CSRV), \
       "CSRV","QBfffB","TimeUS,Id,Pos,Force,Speed,Pow", "s#---%", "F-0000" }, \
     { LOG_CESC_MSG, sizeof(log_CESC), \
@@ -1697,6 +1705,10 @@ enum LogMessages : uint8_t {
     LOG_MOT2_MSG,
     LOG_MOT3_MSG,
     LOG_MOT4_MSG,
+    LOG_MOT5_MSG,
+    LOG_MOT6_MSG,
+    LOG_MOT7_MSG,
+    LOG_MOT8_MSG,
 
     LOG_FORMAT_MSG = 128, // this must remain #128
 
