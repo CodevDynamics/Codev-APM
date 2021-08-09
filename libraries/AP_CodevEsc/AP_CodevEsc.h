@@ -45,6 +45,7 @@ public:
     void set_output_pwm(uint8_t chan,uint16_t pwm){ motor_out[chan] = pwm;};
 
     void set_vehicle_control_mode(uint8_t mode) {control_mode = mode;};
+    void send_esc_telemetry_mavlink(uint8_t mav_chan);
 
     void execute_codev_esc();
     void receive_esc_status();
