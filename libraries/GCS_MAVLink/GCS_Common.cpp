@@ -4533,6 +4533,10 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         break;
 
     case MSG_ESC_TELEMETRY: {
+#ifdef HAL_CODEV_ESC_ENABLE
+    AP_CodevEsc *motor_esc = AP::codevesc();
+    motor_esc->send_esc_telemetry_mavlink(uint8_t(chan));
+#endif
 #ifdef HAVE_AP_BLHELI_SUPPORT
         CHECK_PAYLOAD_SIZE(ESC_TELEMETRY_1_TO_4);
         AP_BLHeli *blheli = AP_BLHeli::get_singleton();
