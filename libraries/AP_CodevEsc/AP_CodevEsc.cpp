@@ -195,8 +195,6 @@ void AP_CodevEsc::read_data_from_uart(ESC_UART_BUF *const uart_buf)
 			}
 		}
 
-	} else if (len < 0) {
-		return;
 	}
 }
 
@@ -307,7 +305,7 @@ void AP_CodevEsc::send_esc_outputs()
 		}
 
         // apply the led color
-        if (i < BOARD_MAX_LEDS) {
+        if (i < HAL_ESC_NUM) {
             set_led_status(i,control_mode,rpm[i]);
 		}
     }
