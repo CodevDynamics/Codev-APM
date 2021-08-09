@@ -15,6 +15,7 @@
 
 #include "AP_CodevEsc.h"
 #include <AP_Arming/AP_Arming.h>
+#include <AP_BattMonitor/AP_BattMonitor.h>
 
 
 
@@ -468,6 +469,42 @@ uint8_t AP_CodevEsc::crc8_esc(uint8_t *p, uint8_t len)
 	}
 
 	return crc;
+}
+
+
+void AP_CodevEsc::send_esc_telemetry_mavlink(uint8_t mav_chan)
+{
+    if (channels_count == 0) {
+        return;
+    }
+    uint16_t voltage[4] {};
+    uint16_t current[4] {};
+    uint16_t rpm[4] {};
+    uint8_t temperature[4] {};
+    uint16_t totalcurrent[4] {};
+    uint16_t count[4] {};
+    AP_BattMonitor &battery = AP::battery();
+    float bat_voltage = battery.voltage();
+
+    for (uint8_t i = 0; i < channels_count; i++) {
+        uint8_t idx = i % 4;
+        temperature[idx]  = _esc_status[i].temperature;
+        voltage[idx]      = bat_voltage * 1000;
+        current[idx]      = _esc_status[i].current * 10;
+        rpm[idx]          = _esc_status[i].rpm;
+
+        if (i % 4 == 3 || i == channels_count - 1) {
+            if (!HAVE_PAYLOAD_SPACE((mavlink_channel_t)mav_chan, ESC_TELEMETRY_1_TO_4)) {
+                return;
+            }
+            if (i < 4) {
+                mavlink_msg_esc_telemetry_1_to_4_send((mavlink_channel_t)mav_chan, temperature, voltage, current, totalcurrent, rpm, count);
+            } else {
+                mavlink_msg_esc_telemetry_5_to_8_send((mavlink_channel_t)mav_chan, temperature, voltage, current, totalcurrent, rpm, count);
+            }
+        }
+    }
+
 }
 
 
