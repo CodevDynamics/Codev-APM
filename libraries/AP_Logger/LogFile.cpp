@@ -823,12 +823,12 @@ void AP_Logger::Write_ESC(uint8_t id, uint64_t time_us, int32_t rpm, uint16_t vo
 //   id starts from 0
 //   rpm is RPM/s (rpm)
 //   current is in centi-amps
-//   temperature is in centi-degrees Celsius
+//   temperature is in degrees Celsius
 //   esc_set is in pwm set value
 void AP_Logger::Write_Motor_Status(uint8_t id, uint8_t state, uint8_t temperature, uint16_t current, int16_t rpm, uint16_t esc_set)
 {
     // sanity check id
-    if (id >= 4) {
+    if (id >= 8) {
         return;
     }
     const struct log_Motor_Status pkt{
