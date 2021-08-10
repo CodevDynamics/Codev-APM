@@ -153,30 +153,11 @@ void Copter::rotate_body_frame_to_NE(float &x, float &y)
 uint16_t Copter::get_pilot_speed_dn()
 {
     int16_t climb_rate = 0;
-    float alt_above_ground = get_alt_above_ground_cm();
+    float alt_above_ground = flightmode->get_alt_above_ground_cm();
     float half_land_alt_low = 0.5 * g2.land_alt_low;
     float half_land_alt_high = g2.land_alt_low;
     float vel_low_dn = g.land_speed;
     float vel_high_dn = (g2.pilot_speed_dn == 0)? g.pilot_speed_up : g2.pilot_speed_dn;
     climb_rate = (int16_t)gradual(alt_above_ground,half_land_alt_low,half_land_alt_high,vel_low_dn,vel_high_dn);
     return abs(climb_rate);
-}
-
-
-
-/*
-  get a height above ground estimate for landing
- */
-int16_t Copter::get_alt_above_ground_cm(void)
-{
-    int32_t alt_above_ground = 0;
-    if (rangefinder_alt_ok()) {
-        alt_above_ground = rangefinder_state.alt_cm_filt.get();
-    } else {
-        bool navigating = pos_control->is_active_xy();
-        if (!navigating || !current_loc.get_alt_cm(Location::AltFrame::ABOVE_TERRAIN, alt_above_ground)) {
-            alt_above_ground = current_loc.alt;
-        }
-    }
-    return (int16_t)alt_above_ground;
 }

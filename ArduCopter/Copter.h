@@ -693,7 +693,6 @@ private:
     float get_avoidance_adjusted_climbrate(float target_rate);
     void set_accel_throttle_I_from_pilot_throttle();
     void rotate_body_frame_to_NE(float &x, float &y);
-    int16_t get_alt_above_ground_cm(void);
     uint16_t get_pilot_speed_dn();
 
 #if ADSB_ENABLED == ENABLED
