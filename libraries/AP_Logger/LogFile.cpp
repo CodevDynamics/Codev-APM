@@ -17,7 +17,7 @@
 #include "AP_Logger_File.h"
 #include "AP_Logger_MAVLink.h"
 #include "LoggerMessageWriter.h"
-#ifdef HAL_CODEV_ESC_ENABLE
+#if HAL_CODEV_ESC_ENABLE
 #include <AP_CodevEsc/AP_CodevEsc.h>
 #endif
 
@@ -337,8 +337,12 @@ void AP_Logger::Write_IMU()
 // Write an raw motors data packet
 void AP_Logger::Write_MOTORS()
 {
-#ifdef HAL_ESC_NUM
+#if HAL_CODEV_ESC_ENABLE
     const AP_CodevEsc *motor_esc = AP::codevesc();
+    if (motor_esc == nullptr) {
+        return;
+    }
+
     for (int i = 0; i < HAL_ESC_NUM; i++) {
         uint8_t id = motor_esc->_esc_status[i].id;
         uint8_t state = motor_esc->_esc_status[i].state;

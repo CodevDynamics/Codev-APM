@@ -501,7 +501,6 @@
  # define MOUNT         ENABLED
 #endif
 
-
 //////////////////////////////////////////////////////////////////////////////
 // Flight mode definitions
 //
@@ -767,10 +766,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // Developer Items
 //
-
-#ifndef HAL_CODEV_ESC_ENABLE
-  #define HAL_CODEV_ESC_ENABLE DISABLED
-#endif
 
 //use this to completely disable FRSKY TELEM
 #ifndef FRSKY_TELEM_ENABLED

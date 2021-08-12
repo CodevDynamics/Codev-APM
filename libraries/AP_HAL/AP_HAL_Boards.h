@@ -236,3 +236,7 @@
 #ifndef USE_LIBC_REALLOC
 #define USE_LIBC_REALLOC 1
 #endif
+
+#ifndef HAL_CODEV_ESC_ENABLE
+  #define HAL_CODEV_ESC_ENABLE 0
+#endif
