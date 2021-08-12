@@ -4533,7 +4533,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         break;
 
     case MSG_ESC_TELEMETRY: {
-#ifdef HAL_CODEV_ESC_ENABLE
+#if HAL_CODEV_ESC_ENABLE
     AP_CodevEsc *motor_esc = AP::codevesc();
     motor_esc->send_esc_telemetry_mavlink(uint8_t(chan));
 #endif

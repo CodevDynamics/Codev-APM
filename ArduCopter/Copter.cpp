@@ -212,7 +212,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK(publish_osd_info, 1, 10),
 #endif
 
-#if HAL_CODEV_ESC_ENABLE
+#if HAL_CODEV_ESC_ENABLE == ENABLED
     SCHED_TASK_CLASS(AP_CodevEsc,         &copter.codev_esc,        receive_esc_status,         400,  50),
 #endif
 };
@@ -388,7 +388,7 @@ void Copter::ten_hz_logging_loop()
     Log_Write_Heli();
 #endif
 
-#ifdef LOG_MOTOR_STATUS
+#if LOG_MOTOR_STATUS == ENABLED
     logger.Write_MOTORS();
 #endif
 }

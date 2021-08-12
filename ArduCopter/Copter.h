@@ -193,7 +193,7 @@
 #include <SITL/SITL.h>
 #endif
 
-#if HAL_CODEV_ESC_ENABLE
+#if HAL_CODEV_ESC_ENABLE == ENABLED
 #include <AP_CodevEsc/AP_CodevEsc.h>
 #endif
 
@@ -516,7 +516,7 @@ private:
     AP_Mount camera_mount{current_loc};
 #endif
 
-#if HAL_CODEV_ESC_ENABLE
+#if HAL_CODEV_ESC_ENABLE == ENABLED
     AP_CodevEsc codev_esc;
 #endif
 

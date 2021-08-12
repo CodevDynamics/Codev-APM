@@ -55,7 +55,7 @@ void Copter::init_ardupilot()
     // setup first port early to allow BoardConfig to report errors
     gcs().setup_console();
 
-#if HAL_CODEV_ESC_ENABLE
+#if HAL_CODEV_ESC_ENABLE == ENABLED
     codev_esc.init();
 #endif
 
