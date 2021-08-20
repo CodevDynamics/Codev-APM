@@ -3087,6 +3087,20 @@ void GCS_MAVLINK::handle_rc_channels(const mavlink_message_t &msg)
     }
 }
 
+
+// allow override of RC channel values for HIL or for complete GCS
+// control of switch position and RC PWM values.
+void GCS_MAVLINK::handle_mount_orientation(const mavlink_message_t &msg)
+{
+    AP_Mount *mount = AP::mount();
+
+    mavlink_mount_orientation_t packet;
+    mavlink_msg_mount_orientation_decode(&msg, &packet);
+
+    mount->mount_orientation_angle(packet.roll,packet.pitch,packet.yaw,packet.yaw_absolute);
+
+}
+
 // allow override of RC channel values for HIL or for complete GCS
 // control of switch position and RC PWM values.
 void GCS_MAVLINK::handle_optical_flow(const mavlink_message_t &msg)
@@ -3285,6 +3299,10 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
 
     case MAVLINK_MSG_ID_RC_CHANNELS:
         handle_rc_channels(msg);
+        break;
+
+    case MAVLINK_MSG_ID_MOUNT_ORIENTATION:
+        handle_mount_orientation(msg);
         break;
 
     case MAVLINK_MSG_ID_OPTICAL_FLOW:
