@@ -126,6 +126,8 @@ public:
     // send a MOUNT_STATUS message to GCS:
     void send_mount_status(mavlink_channel_t chan);
 
+    void mount_orientation_angle(float roll, float pitch, float yaw, float yaw_absolute);
+
     // parameter var table
     static const struct AP_Param::GroupInfo        var_info[];
 

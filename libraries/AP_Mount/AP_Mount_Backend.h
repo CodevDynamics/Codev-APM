@@ -69,6 +69,8 @@ public:
     // send_mount_status - called to allow mounts to send their status to GCS via MAVLink
     virtual void send_mount_status(mavlink_channel_t chan) = 0;
 
+    virtual void mount_orientation_angle(float roll, float pitch, float yaw, float yaw_absolute) = 0;
+
     // handle a GIMBAL_REPORT message
     virtual void handle_gimbal_report(mavlink_channel_t chan, const mavlink_message_t &msg) {}
 

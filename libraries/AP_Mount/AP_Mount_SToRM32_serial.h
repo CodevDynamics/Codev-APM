@@ -35,6 +35,8 @@ public:
     // send_mount_status - called to allow mounts to send their status to GCS using the MOUNT_STATUS message
     void send_mount_status(mavlink_channel_t chan) override;
 
+    void mount_orientation_angle(float roll, float pitch, float yaw, float yaw_absolute) override {};
+
 private:
 
     // send_target_angles
