@@ -2,6 +2,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include <GCS_MAVLink/GCS.h>
 #include <AP_GPS/AP_GPS.h>
+#include <RC_Channel/RC_Channel.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -19,8 +20,14 @@ void AP_Mount_Mavlink::update()
         return;
     }
 
+    const RC_Channel *mount_reset_ch = rc().channel(15 - 1);
+    int16_t mount_reset_rc = mount_reset_ch->get_radio_in();
+
     // flag to trigger sending target angles to gimbal
     bool resend_now = false;
+
+    float delta_T = 0;
+    uint32_t now = AP_HAL::millis();
 
     // update based on mount mode
     switch(get_mode()) {
@@ -54,10 +61,32 @@ void AP_Mount_Mavlink::update()
             // update targets using pilot's rc inputs
             update_targets_from_rc();
             // wait until the gimabl initialise finished
-            if (AP_HAL::millis() - _found_gimbal_time < AP_MOUNT_MAVLINK_GIMBAL_INIT_MS) {
+            if (now - _found_gimbal_time < AP_MOUNT_MAVLINK_GIMBAL_INIT_MS) {
                 return;
             }
 
+            if (_last_mount_update == 0) {
+                _last_mount_update = now;
+            }
+
+            delta_T = (now - _last_mount_update) * 1E-3f;
+
+            _last_mount_update = now;
+
+            mount_control_roll += delta_T * ToDeg(_angle_ef_target_rad.x);
+            mount_control_pitch += delta_T * ToDeg(_angle_ef_target_rad.y);
+            mount_control_yaw += delta_T * ToDeg(_angle_ef_target_rad.z);
+
+            if (_angle_ef_target_rad.z != 0) {
+                _mount_yaw_last = _mount_yaw;
+            }
+
+            _delta_yaw = _mount_yaw - _mount_yaw_last;
+
+            mount_control_yaw = wrap_180(mount_control_yaw);
+
+            // limit the gimbal attitude
+            mount_control_pitch = constrain_float(mount_control_pitch,-90.0f,45.0f);
             resend_now = true;
             break;
 
@@ -75,9 +104,14 @@ void AP_Mount_Mavlink::update()
     }
 
     // resend target angles at least once per second
-    if (resend_now || ((AP_HAL::millis() - _last_send) > AP_MOUNT_MAVLINK_GIMBAL_RESEND_MS)) {
+     if (mount_reset_rc > 1500) {
+            mount_control_roll = 0;
+            mount_control_pitch = 0;
+            mount_control_yaw = 0;
+            send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, MAV_MOUNT_MODE_MAVLINK_TARGETING);
+    } else if (resend_now || ((AP_HAL::millis() - _last_send) > AP_MOUNT_MAVLINK_GIMBAL_RESEND_MS)) {
         // RATES CONTROL
-        send_do_mount_control(ToDeg(_angle_ef_target_rad.y), ToDeg(_angle_ef_target_rad.x), ToDeg(_angle_ef_target_rad.z), MAV_MOUNT_MODE_NEUTRAL);
+        send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, MAV_MOUNT_MODE_MAVLINK_TARGETING);
     }
 }
 
@@ -100,11 +134,40 @@ void AP_Mount_Mavlink::set_mode(enum MAV_MOUNT_MODE mode)
     _state._mode = mode;
 }
 
+void AP_Mount_Mavlink::mount_orientation_angle(float roll, float pitch, float yaw, float yaw_absolute)
+{
+    _mount_roll = roll;
+    _mount_pitch = pitch;
+    _mount_yaw = yaw;
+    _mount_yaw_absolute = yaw_absolute;
+}
+
 // send_mount_status - called to allow mounts to send their status to GCS using the MOUNT_STATUS message
 void AP_Mount_Mavlink::send_mount_status(mavlink_channel_t chan)
 {
-    // return target angles as gimbal's actual attitude.  To-Do: retrieve actual gimbal attitude and send these instead
-    mavlink_msg_mount_status_send(chan, 0, 0, ToDeg(_angle_ef_target_rad.y)*100, ToDeg(_angle_ef_target_rad.x)*100, ToDeg(_angle_ef_target_rad.z)*100);
+    // // exit immediately if not initialised
+    // if (!_initialised) {
+    //     return;
+    // }
+
+    // // check we have space for the message
+    // if (!HAVE_PAYLOAD_SPACE(_chan, COMMAND_LONG)) {
+    //     return;
+    // }
+    // // send command_long command containing a do_mount_control command
+    // mavlink_msg_command_long_send(_chan,
+    //                               _sysid,
+    //                               _compid,
+    //                               MAV_CMD_DO_MOUNT_CONTROL,
+    //                               0,        // confirmation of zero means this is the first time this message has been sent
+    //                               ToDeg(_angle_ef_target_rad.y),
+    //                               ToDeg(_angle_ef_target_rad.x),
+    //                               ToDeg(_angle_ef_target_rad.z),
+    //                               0, 0, 0,  // param4 ~ param6 unused
+    //                               MAV_MOUNT_MODE_MAVLINK_TARGETING);
+
+    // // store time of send
+    // _last_send = AP_HAL::millis();
 }
 
 // search for gimbal in GCS_MAVLink routing table

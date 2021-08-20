@@ -36,6 +36,8 @@ public:
     // send_mount_status - called to allow mounts to send their status to GCS using the MOUNT_STATUS message
     void send_mount_status(mavlink_channel_t chan) override;
 
+    void mount_orientation_angle(float roll, float pitch, float yaw, float yaw_absolute) override;
+
 private:
 
     // search for gimbal in GCS_MAVLink routing table
@@ -51,4 +53,16 @@ private:
     mavlink_channel_t _chan;        // mavlink channel used to communicate with gimbal.  Currently hard-coded to Telem2
     uint32_t _last_send;            // system time of last do_mount_control sent to gimbal
     uint32_t _found_gimbal_time = 0;            // system time of last do_mount_control sent to gimbal
+    uint32_t _last_mount_update = 0;            // system time of last do_mount_control sent to gimbal
+
+    float _mount_roll = 0.0f;
+    float _mount_pitch = 0.0f;
+    float _mount_yaw = 0.0f;
+    float _mount_yaw_absolute = 0.0f;
+    float _mount_yaw_last = 0.0f;
+    float _delta_yaw = 0.0f;
+
+    float mount_control_roll = 0.0;
+    float mount_control_pitch = 0.0;
+    float mount_control_yaw = 0.0;
 };
