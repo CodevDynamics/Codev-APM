@@ -6,6 +6,7 @@
 #include "AP_Mount_SoloGimbal.h"
 #include "AP_Mount_Alexmos.h"
 #include "AP_Mount_SToRM32.h"
+#include "AP_Mount_Mavlink.h"
 #include "AP_Mount_SToRM32_serial.h"
 
 const AP_Param::GroupInfo AP_Mount::var_info[] = {
@@ -461,6 +462,9 @@ void AP_Mount::init()
         // check for SToRM32 mounts using serial protocol
         } else if (mount_type == Mount_Type_SToRM32_serial) {
             _backends[instance] = new AP_Mount_SToRM32_serial(*this, state[instance], instance);
+            _num_instances++;
+        } else if (mount_type == Mount_Type_Mavlink) {
+            _backends[instance] = new AP_Mount_Mavlink(*this, state[instance], instance);
             _num_instances++;
         }
 
