@@ -59,8 +59,6 @@ private:
     float _mount_pitch = 0.0f;
     float _mount_yaw = 0.0f;
     float _mount_yaw_absolute = 0.0f;
-    float _mount_yaw_last = 0.0f;
-    float _delta_yaw = 0.0f;
 
     float mount_control_roll = 0.0;
     float mount_control_pitch = 0.0;

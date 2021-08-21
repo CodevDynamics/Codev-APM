@@ -95,7 +95,9 @@ public:
 
     // get_mode - returns current mode of mount (i.e. Retracted, Neutral, RC_Targeting, GPS Point)
     enum MAV_MOUNT_MODE get_mode() const { return get_mode(_primary); }
+    int8_t get_mode_cfg() const { return get_mode_cfg(_primary); }
     enum MAV_MOUNT_MODE get_mode(uint8_t instance) const;
+    int8_t get_mode_cfg(uint8_t instance) const;
 
     // set_mode - sets mount's mode
     //  returns true if mode is successfully set
@@ -145,7 +147,6 @@ protected:
     uint8_t             _num_instances;     // number of mounts instantiated
     uint8_t             _primary;           // primary mount
     AP_Mount_Backend    *_backends[AP_MOUNT_MAX_INSTANCES];         // pointers to instantiated mounts
-
     // backend state including parameters
     struct mount_state {
         // Parameters
@@ -175,6 +176,8 @@ protected:
         AP_Float        _pitch_stb_lead;    // pitch lead control gain
 
         MAV_MOUNT_MODE  _mode;              // current mode (see MAV_MOUNT_MODE enum)
+        AP_Int8  _mode_cfg;          // current mode (see msgid MAV_CMD_DO_MOUNT_CONFIGURE)
+
         struct Location _roi_target;        // roi target location
     } state[AP_MOUNT_MAX_INSTANCES];
 

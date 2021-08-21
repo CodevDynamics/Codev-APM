@@ -93,6 +93,7 @@ protected:
 
     // get the mount mode from frontend
     MAV_MOUNT_MODE get_mode(void) const { return _frontend.get_mode(_instance); }
+    int8_t get_mode_cfg(void) const { return _frontend.get_mode_cfg(_instance); }
 
     AP_Mount    &_frontend; // reference to the front end which holds parameters
     AP_Mount::mount_state &_state;    // references to the parameters and state for this backend

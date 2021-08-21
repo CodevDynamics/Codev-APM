@@ -199,7 +199,12 @@ const AP_Param::GroupInfo AP_Mount::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("_TYPE", 19, AP_Mount, state[0]._type, 0),
 
-    // 20 formerly _OFF_JNT
+    // @Param: _MODE_CFG
+    // @DisplayName: Mount Config Mode
+    // @Description: Mount Config Mode (MAVLink)
+    // @Values: 0:MAV_MOUNT_MODE_RETRACT, 1:MAV_MOUNT_MODE_NEUTRAL 2:MAV_MOUNT_MODE_MAVLINK_TARGETING
+    // @User: Standard
+    AP_GROUPINFO("_MODE_CFG", 20, AP_Mount, state[0]._mode_cfg, 0),
 
     // 21 formerly _OFF_ACC
 
@@ -208,6 +213,7 @@ const AP_Param::GroupInfo AP_Mount::var_info[] = {
     // 23 formerly _K_RATE
 
     // 24 is AVAILABLE
+
 
 #if AP_MOUNT_MAX_INSTANCES > 1
     // @Param: 2_DEFLT_MODE
@@ -389,6 +395,12 @@ const AP_Param::GroupInfo AP_Mount::var_info[] = {
     // @Values: 0:None, 1:Servo, 2:3DR Solo, 3:Alexmos Serial, 4:SToRM32 MAVLink, 5:SToRM32 Serial
     // @User: Standard
     AP_GROUPINFO("2_TYPE",           42, AP_Mount, state[1]._type, 0),
+    // @Param: _MODE_CFG
+    // @DisplayName: Mount Config Mode
+    // @Description: Mount Config Mode (MAVLink)
+    // @Values: 0:MAV_MOUNT_MODE_RETRACT, 1:MAV_MOUNT_MODE_NEUTRAL 2:MAV_MOUNT_MODE_MAVLINK_TARGETING
+    // @User: Standard
+    AP_GROUPINFO("_MODE_CFG", 43, AP_Mount, state[1]._mode_cfg, 0),
 #endif // AP_MOUNT_MAX_INSTANCES > 1
 
     AP_GROUPEND
@@ -531,6 +543,17 @@ MAV_MOUNT_MODE AP_Mount::get_mode(uint8_t instance) const
     }
 
     return state[instance]._mode;
+}
+
+// get_mode - returns current mode of mount (i.e. Retracted, Neutral, RC_Targeting, GPS Point)
+int8_t AP_Mount::get_mode_cfg(uint8_t instance) const
+{
+    // sanity check instance
+    if (instance >= AP_MOUNT_MAX_INSTANCES) {
+        return  MAV_MOUNT_MODE_RETRACT;
+    }
+
+    return state[instance]._mode_cfg;
 }
 
 // set_mode_to_default - restores the mode to it's default mode held in the MNT_MODE parameter
