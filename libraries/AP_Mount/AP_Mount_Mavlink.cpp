@@ -62,6 +62,7 @@ void AP_Mount_Mavlink::update()
             update_targets_from_rc();
             // wait until the gimabl initialise finished
             if (now - _found_gimbal_time < AP_MOUNT_MAVLINK_GIMBAL_INIT_MS) {
+                mount_control_yaw = _mount_yaw_absolute;
                 return;
             }
 
@@ -76,12 +77,6 @@ void AP_Mount_Mavlink::update()
             mount_control_roll += delta_T * ToDeg(_angle_ef_target_rad.x);
             mount_control_pitch += delta_T * ToDeg(_angle_ef_target_rad.y);
             mount_control_yaw += delta_T * ToDeg(_angle_ef_target_rad.z);
-
-            if (_angle_ef_target_rad.z != 0) {
-                _mount_yaw_last = _mount_yaw;
-            }
-
-            _delta_yaw = _mount_yaw - _mount_yaw_last;
 
             mount_control_yaw = wrap_180(mount_control_yaw);
 
@@ -107,11 +102,12 @@ void AP_Mount_Mavlink::update()
      if (mount_reset_rc > 1500) {
             mount_control_roll = 0;
             mount_control_pitch = 0;
-            mount_control_yaw = 0;
+            mount_control_yaw = _mount_yaw_absolute;
             send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, MAV_MOUNT_MODE_MAVLINK_TARGETING);
     } else if (resend_now || ((AP_HAL::millis() - _last_send) > AP_MOUNT_MAVLINK_GIMBAL_RESEND_MS)) {
         // RATES CONTROL
-        send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, MAV_MOUNT_MODE_MAVLINK_TARGETING);
+        send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, (enum MAV_MOUNT_MODE)get_mode_cfg());
+        get_mode();
     }
 }
 
