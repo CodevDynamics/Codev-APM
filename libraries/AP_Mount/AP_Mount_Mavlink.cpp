@@ -3,6 +3,7 @@
 #include <GCS_MAVLink/GCS.h>
 #include <AP_GPS/AP_GPS.h>
 #include <RC_Channel/RC_Channel.h>
+#include <AP_AHRS/AP_AHRS.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -19,6 +20,8 @@ void AP_Mount_Mavlink::update()
         find_gimbal();
         return;
     }
+
+    send_attitude();
 
     const RC_Channel *mount_reset_ch = rc().channel(15 - 1);
     int16_t mount_reset_rc = mount_reset_ch->get_radio_in();
@@ -167,6 +170,22 @@ void AP_Mount_Mavlink::send_mount_status(mavlink_channel_t chan)
 
     // // store time of send
     // _last_send = AP_HAL::millis();
+}
+
+
+void AP_Mount_Mavlink::send_attitude()
+{
+    const AP_AHRS &ahrs = AP::ahrs();
+    const Vector3f omega = ahrs.get_gyro();
+    mavlink_msg_attitude_send(
+        _chan,
+        AP_HAL::millis(),
+        ahrs.roll,
+        ahrs.pitch,
+        -ahrs.yaw,
+        omega.x,
+        omega.y,
+        -omega.z);
 }
 
 // search for gimbal in GCS_MAVLink routing table
