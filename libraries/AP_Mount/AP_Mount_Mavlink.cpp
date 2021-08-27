@@ -101,7 +101,7 @@ void AP_Mount_Mavlink::update()
     }
 
     // resend target angles at least once per second
-    bool rc_targeting_mnt = (get_mode() == MAV_MOUNT_MODE_RC_TARGETING) && (resend_now || ((AP_HAL::millis() - _last_send) > AP_MOUNT_MAVLINK_GIMBAL_RESEND_MS));
+    bool rc_targeting_mnt = (get_mode() == MAV_MOUNT_MODE_RC_TARGETING) && resend_now;
 
     if (mount_reset_rc > 1500 && rc_targeting_mnt) {
             mount_control_roll = 0;
@@ -112,6 +112,8 @@ void AP_Mount_Mavlink::update()
         // RATES CONTROL
         send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, (enum MAV_MOUNT_MODE)get_mode_cfg());
     } else {
+        mount_control_yaw = ToDeg(_angle_ef_target_rad.z);
+        mount_control_pitch = ToDeg(_angle_ef_target_rad.y);
         send_do_mount_control(ToDeg(_angle_ef_target_rad.y), ToDeg(_angle_ef_target_rad.x), ToDeg(_angle_ef_target_rad.z), MAV_MOUNT_MODE_MAVLINK_TARGETING);
     }
 }
