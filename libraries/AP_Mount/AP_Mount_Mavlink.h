@@ -65,4 +65,6 @@ private:
     float mount_control_roll = 0.0;
     float mount_control_pitch = 0.0;
     float mount_control_yaw = 0.0;
+
+    uint16_t _count = 0;
 };

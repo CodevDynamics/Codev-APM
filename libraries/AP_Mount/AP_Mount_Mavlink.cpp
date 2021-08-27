@@ -65,7 +65,6 @@ void AP_Mount_Mavlink::update()
             update_targets_from_rc();
             // wait until the gimabl initialise finished
             if (now - _found_gimbal_time < AP_MOUNT_MAVLINK_GIMBAL_INIT_MS) {
-                mount_control_yaw = _mount_yaw_absolute;
                 return;
             }
 
@@ -107,7 +106,7 @@ void AP_Mount_Mavlink::update()
     if (mount_reset_rc > 1500 && rc_targeting_mnt) {
             mount_control_roll = 0;
             mount_control_pitch = 0;
-            mount_control_yaw = _mount_yaw_absolute;
+            mount_control_yaw = 0;
             send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, MAV_MOUNT_MODE_MAVLINK_TARGETING);
     } else if (rc_targeting_mnt) {
         // RATES CONTROL
