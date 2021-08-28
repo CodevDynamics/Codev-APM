@@ -189,6 +189,7 @@ private:
 
     MAV_RESULT handle_command_do_mount_configure(const mavlink_command_long_t &packet);
     MAV_RESULT handle_command_do_mount_control(const mavlink_command_long_t &packet);
+    MAV_RESULT handle_command_do_camera_control(const mavlink_command_long_t &packet);
 
 };
 

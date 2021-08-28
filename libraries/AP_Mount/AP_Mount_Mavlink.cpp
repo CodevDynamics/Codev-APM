@@ -145,6 +145,23 @@ void AP_Mount_Mavlink::mount_orientation_angle(float roll, float pitch, float ya
     _mount_yaw_absolute = yaw_absolute;
 }
 
+void AP_Mount_Mavlink::control_camera(const mavlink_command_long_t &packet)
+{
+    mavlink_msg_command_long_send(_chan,
+                                  packet.target_system,
+                                  packet.target_component,
+                                  packet.command,
+                                  packet.confirmation,
+                                  packet.param1,        // confirmation of zero means this is the first time this message has been sent
+                                  packet.param2,
+                                  packet.param3,
+                                  packet.param4,
+                                  packet.param5,
+                                  packet.param6,
+                                  packet.param7);
+
+}
+
 // send_mount_status - called to allow mounts to send their status to GCS using the MOUNT_STATUS message
 void AP_Mount_Mavlink::send_mount_status(mavlink_channel_t chan)
 {

@@ -38,6 +38,8 @@ public:
 
     void mount_orientation_angle(float roll, float pitch, float yaw, float yaw_absolute) override;
 
+    void control_camera(const mavlink_command_long_t &packet) override;
+
 private:
 
     // search for gimbal in GCS_MAVLink routing table
