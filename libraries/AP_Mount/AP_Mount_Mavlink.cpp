@@ -147,6 +147,16 @@ void AP_Mount_Mavlink::mount_orientation_angle(float roll, float pitch, float ya
 
 void AP_Mount_Mavlink::control_camera(const mavlink_command_long_t &packet)
 {
+    // exit immediately if not initialised
+    if (!_initialised) {
+        return;
+    }
+
+    // check we have space for the message
+    if (!HAVE_PAYLOAD_SPACE(_chan, COMMAND_LONG)) {
+        return;
+    }
+
     mavlink_msg_command_long_send(_chan,
                                   packet.target_system,
                                   packet.target_component,
