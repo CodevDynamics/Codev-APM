@@ -612,6 +612,18 @@ MAV_RESULT AP_Mount::handle_command_do_mount_control(const mavlink_command_long_
     return MAV_RESULT_ACCEPTED;
 }
 
+MAV_RESULT AP_Mount::handle_command_do_camera_control(const mavlink_command_long_t &packet)
+{
+    if (_primary >= AP_MOUNT_MAX_INSTANCES || _backends[_primary] == nullptr) {
+        return MAV_RESULT_FAILED;
+    }
+
+    // send message to backend
+    _backends[_primary]->control_camera(packet);
+
+    return MAV_RESULT_ACCEPTED;
+}
+
 MAV_RESULT AP_Mount::handle_command_long(const mavlink_command_long_t &packet)
 {
     switch (packet.command) {
@@ -619,6 +631,10 @@ MAV_RESULT AP_Mount::handle_command_long(const mavlink_command_long_t &packet)
         return handle_command_do_mount_configure(packet);
     case MAV_CMD_DO_MOUNT_CONTROL:
         return handle_command_do_mount_control(packet);
+    case MAV_CMD_IMAGE_START_CAPTURE:
+    case MAV_CMD_VIDEO_START_CAPTURE:
+    case MAV_CMD_VIDEO_STOP_CAPTURE:
+        return handle_command_do_camera_control(packet);
     default:
         return MAV_RESULT_UNSUPPORTED;
     }
