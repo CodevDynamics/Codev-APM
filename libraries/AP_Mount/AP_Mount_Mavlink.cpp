@@ -112,9 +112,10 @@ void AP_Mount_Mavlink::update()
         // RATES CONTROL
         send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, (enum MAV_MOUNT_MODE)get_mode_cfg());
     } else {
-        mount_control_yaw = ToDeg(_angle_ef_target_rad.z);
-        mount_control_pitch = ToDeg(_angle_ef_target_rad.y);
-        send_do_mount_control(ToDeg(_angle_ef_target_rad.y), ToDeg(_angle_ef_target_rad.x), ToDeg(_angle_ef_target_rad.z), MAV_MOUNT_MODE_MAVLINK_TARGETING);
+        mount_control_roll = ToDeg(_angle_ef_target_rad.x)*100;
+        mount_control_yaw = ToDeg(_angle_ef_target_rad.z)*100;
+        mount_control_pitch = ToDeg(_angle_ef_target_rad.y)*100;
+        send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, MAV_MOUNT_MODE_MAVLINK_TARGETING);
     }
 }
 
