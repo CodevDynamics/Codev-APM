@@ -165,7 +165,7 @@ void AP_Mount_Mavlink::control_camera(const mavlink_command_long_t &packet)
                                   packet.param1,        // confirmation of zero means this is the first time this message has been sent
                                   packet.param2,
                                   packet.param3,
-                                  packet.param4,
+                                  _picture_count++,     //ToDo: Fix the e90x which index need increase.
                                   packet.param5,
                                   packet.param6,
                                   packet.param7);
