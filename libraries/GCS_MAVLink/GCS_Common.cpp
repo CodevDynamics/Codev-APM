@@ -3771,6 +3771,7 @@ MAV_RESULT GCS_MAVLINK::handle_command_long_packet(const mavlink_command_long_t 
     case MAV_CMD_SET_CAMERA_MODE:
     case MAV_CMD_VIDEO_START_CAPTURE:
     case MAV_CMD_VIDEO_STOP_CAPTURE:
+    case MAV_CMD_STORAGE_FORMAT:
         result = handle_command_mount(packet);
         break;
 
