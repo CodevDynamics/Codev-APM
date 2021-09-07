@@ -635,6 +635,7 @@ MAV_RESULT AP_Mount::handle_command_long(const mavlink_command_long_t &packet)
     case MAV_CMD_VIDEO_START_CAPTURE:
     case MAV_CMD_VIDEO_STOP_CAPTURE:
     case MAV_CMD_SET_CAMERA_MODE:
+    case MAV_CMD_STORAGE_FORMAT:
         return handle_command_do_camera_control(packet);
     default:
         return MAV_RESULT_UNSUPPORTED;
