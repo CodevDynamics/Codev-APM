@@ -156,6 +156,18 @@ void AP_Camera::trigger_pic()
     case CamTrigType::gopro:  // gopro in Solo Gimbal
         AP_Camera_SoloGimbal::gopro_shutter_toggle();
         break;
+    case CamTrigType::mav_cam:
+        mavlink_command_long_t mav_cmd_long = {};
+        // convert command to mavlink command long
+        mav_cmd_long.command = MAV_CMD_IMAGE_START_CAPTURE;
+        mav_cmd_long.param1 = 0.0f;
+        mav_cmd_long.param2 = 0.0f;
+        mav_cmd_long.param3 = 0.0f;
+        mav_cmd_long.param4 = _image_index;
+        mav_cmd_long.param5 = 0.0f;
+        mav_cmd_long.param6 = 0.0f;
+        GCS_MAVLINK::send_to_components(MAVLINK_MSG_ID_COMMAND_LONG, (char*)&mav_cmd_long, sizeof(mavlink_command_long_t));
+        break;
     }
 
     log_picture();
@@ -186,6 +198,7 @@ AP_Camera::trigger_pic_cleanup()
             break;
         }
         case CamTrigType::gopro:
+        case CamTrigType::mav_cam:
             // nothing to do
             break;
         }
@@ -476,7 +489,6 @@ void AP_Camera::update_trigger()
     if (_camera_trigger_logged != _camera_trigger_count) {
         uint32_t timestamp32 = _feedback_timestamp_us;
         _camera_trigger_logged = _camera_trigger_count;
-
         gcs().send_message(MSG_CAMERA_FEEDBACK);
         AP_Logger *logger = AP_Logger::get_singleton();
         if (logger != nullptr) {
@@ -497,6 +509,7 @@ AP_Camera::CamTrigType AP_Camera::get_trigger_type(void)
         case CamTrigType::servo:
         case CamTrigType::relay:
         case CamTrigType::gopro:
+        case CamTrigType::mav_cam:
             return (CamTrigType)type;
         default:
             return CamTrigType::servo;

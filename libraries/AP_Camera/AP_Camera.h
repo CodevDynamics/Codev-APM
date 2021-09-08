@@ -79,6 +79,7 @@ public:
         servo   = 0,
         relay   = 1,
         gopro   = 2,
+        mav_cam = 3,
     };
 
     AP_Camera::CamTrigType get_trigger_type(void);
