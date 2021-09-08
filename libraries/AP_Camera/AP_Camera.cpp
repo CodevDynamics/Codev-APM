@@ -5,6 +5,7 @@
 #include <AP_Math/AP_Math.h>
 #include <RC_Channel/RC_Channel.h>
 #include <AP_HAL/AP_HAL.h>
+#include <AP_Mount/AP_Mount.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <GCS_MAVLink/GCS.h>
 #include <SRV_Channel/SRV_Channel.h>
@@ -166,7 +167,11 @@ void AP_Camera::trigger_pic()
         mav_cmd_long.param4 = _image_index;
         mav_cmd_long.param5 = 0.0f;
         mav_cmd_long.param6 = 0.0f;
-        GCS_MAVLINK::send_to_components(MAVLINK_MSG_ID_COMMAND_LONG, (char*)&mav_cmd_long, sizeof(mavlink_command_long_t));
+        AP_Mount *mount = AP::mount();
+        if (mount == nullptr) {
+            return;
+        }
+        mount->handle_command_long(mav_cmd_long);
         break;
     }
 
