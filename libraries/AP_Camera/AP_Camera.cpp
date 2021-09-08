@@ -160,10 +160,12 @@ void AP_Camera::trigger_pic()
     case CamTrigType::mav_cam:
         mavlink_command_long_t mav_cmd_long = {};
         // convert command to mavlink command long
+        mav_cmd_long.target_system = MAV_COMP_ID_AUTOPILOT1;
+        mav_cmd_long.target_component = MAV_COMP_ID_CAMERA;
         mav_cmd_long.command = MAV_CMD_IMAGE_START_CAPTURE;
         mav_cmd_long.param1 = 0.0f;
         mav_cmd_long.param2 = 0.0f;
-        mav_cmd_long.param3 = 0.0f;
+        mav_cmd_long.param3 = 1.0f; // take picture
         mav_cmd_long.param4 = _image_index;
         mav_cmd_long.param5 = 0.0f;
         mav_cmd_long.param6 = 0.0f;
