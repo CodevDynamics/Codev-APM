@@ -23,6 +23,10 @@ void AP_Mount_Mavlink::update()
 
     send_attitude();
 
+    // write inforation to image for recording and gimbal for controlling
+    send_gps_raw_int_position();
+    send_global_position_int();
+
     const RC_Channel *mount_reset_ch = rc().channel(15 - 1);
     int16_t mount_reset_rc = mount_reset_ch->get_radio_in();
 
@@ -215,6 +219,40 @@ void AP_Mount_Mavlink::send_attitude()
         omega.x,
         omega.y,
         -omega.z);
+}
+
+
+void AP_Mount_Mavlink::send_gps_raw_int_position()
+{
+    AP::gps().send_mavlink_gps_raw(_chan);
+}
+
+void AP_Mount_Mavlink::send_global_position_int()
+{
+    AP_AHRS &ahrs = AP::ahrs();
+    float position_int_relative_alt;
+
+    ahrs.get_relative_position_D_home(position_int_relative_alt);
+    position_int_relative_alt *= -1000.0f; // change from down to up and metres to millimeters
+
+    ahrs.get_position(global_position_current_loc); // return value ignored; we send stale data
+
+    Vector3f vel;
+    if (!ahrs.get_velocity_NED(vel)) {
+        vel.zero();
+    }
+
+    mavlink_msg_global_position_int_send(
+        _chan,
+        AP_HAL::millis(),
+        global_position_current_loc.lat, // in 1E7 degrees
+        global_position_current_loc.lng, // in 1E7 degrees
+        global_position_current_loc.alt * 10UL,       // millimeters above ground/sea level
+        (int32_t)position_int_relative_alt, // millimeters above home
+        vel.x * 100,                     // X speed cm/s (+ve North)
+        vel.y * 100,                     // Y speed cm/s (+ve East)
+        vel.z * 100,                     // Z speed cm/s (+ve Down)
+        ahrs.yaw_sensor);                // compass heading in 1/100 degree
 }
 
 // search for gimbal in GCS_MAVLink routing table
