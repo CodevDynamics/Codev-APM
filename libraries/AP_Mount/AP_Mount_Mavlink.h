@@ -9,6 +9,7 @@
 #include <AP_Math/AP_Math.h>
 #include <AP_Common/AP_Common.h>
 #include <RC_Channel/RC_Channel.h>
+#include <AP_Common/Location.h>
 #include "AP_Mount_Backend.h"
 
 #define AP_MOUNT_MAVLINK_GIMBAL_RESEND_MS  1000    // resend angle targets to gimbal once per second
@@ -50,6 +51,9 @@ private:
 
     void send_attitude();
 
+    void send_gps_raw_int_position();
+    void send_global_position_int();
+
     // internal variables
     bool _initialised;              // true once the driver has been initialised
     uint8_t _sysid;                 // sysid of gimbal
@@ -58,6 +62,8 @@ private:
     uint32_t _last_send;            // system time of last do_mount_control sent to gimbal
     uint32_t _found_gimbal_time = 0;            // system time of last do_mount_control sent to gimbal
     uint32_t _last_mount_update = 0;            // system time of last do_mount_control sent to gimbal
+
+    struct Location global_position_current_loc = {};
 
     float _mount_roll = 0.0f;
     float _mount_pitch = 0.0f;
