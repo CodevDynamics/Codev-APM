@@ -127,7 +127,7 @@ void AP_Mount_Mavlink::update()
 bool AP_Mount_Mavlink::has_pan_control() const
 {
     // we do not have yaw control
-    return false;
+    return true;
 }
 
 // set_mode - sets mount's mode
