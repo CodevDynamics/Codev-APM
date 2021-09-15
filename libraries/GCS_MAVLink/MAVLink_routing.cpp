@@ -97,11 +97,6 @@ bool MAVLink_routing::check_and_forward(mavlink_channel_t in_channel, const mavl
         return true;
     }
 
-    // fix the which do not get the received data
-    if (msg.sysid == 1 && (msg.compid == 0)) {
-        return true;
-    }
-
     // learn new routes
     learn_route(in_channel, msg);
 
