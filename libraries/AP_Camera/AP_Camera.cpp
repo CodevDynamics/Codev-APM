@@ -5,6 +5,7 @@
 #include <AP_Math/AP_Math.h>
 #include <RC_Channel/RC_Channel.h>
 #include <AP_HAL/AP_HAL.h>
+#include <AP_Mount/AP_Mount.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <GCS_MAVLink/GCS.h>
 #include <SRV_Channel/SRV_Channel.h>
@@ -148,13 +149,37 @@ void AP_Camera::trigger_pic()
     _image_index++;
     switch (get_trigger_type()) {
     case CamTrigType::servo:
+        gcs().send_text(MAV_SEVERITY_INFO,"servo_pic"); 
         servo_pic();            // Servo operated camera
         break;
     case CamTrigType::relay:
+        gcs().send_text(MAV_SEVERITY_INFO,"relay"); 
         relay_pic();            // basic relay activation
         break;
     case CamTrigType::gopro:  // gopro in Solo Gimbal
         AP_Camera_SoloGimbal::gopro_shutter_toggle();
+        break;
+    case CamTrigType::mav_cam:
+        gcs().send_text(MAV_SEVERITY_INFO,"mav_cam"); 
+        mavlink_command_long_t mav_cmd_long = {};
+        // convert command to mavlink command long
+        mav_cmd_long.target_system = MAV_COMP_ID_AUTOPILOT1;
+        mav_cmd_long.target_component = MAV_COMP_ID_CAMERA;
+        mav_cmd_long.command = MAV_CMD_IMAGE_START_CAPTURE;
+        mav_cmd_long.param1 = 0.0f;
+        mav_cmd_long.param2 = 0.0f;
+        mav_cmd_long.param3 = 1.0f; // take picture
+        mav_cmd_long.param4 = _image_index;
+        mav_cmd_long.param5 = 0.0f;
+        mav_cmd_long.param6 = 0.0f;
+
+        gcs().send_text(MAV_SEVERITY_INFO,"Take a picture(%d)", _image_index); 
+        AP_Mount *mount = AP::mount();
+        if (mount == nullptr) {
+            return;
+        }
+        gcs().send_text(MAV_SEVERITY_INFO,"Take a picture Done"); 
+        mount->handle_command_long(mav_cmd_long);
         break;
     }
 
@@ -186,6 +211,7 @@ AP_Camera::trigger_pic_cleanup()
             break;
         }
         case CamTrigType::gopro:
+        case CamTrigType::mav_cam:
             // nothing to do
             break;
         }
@@ -497,6 +523,7 @@ AP_Camera::CamTrigType AP_Camera::get_trigger_type(void)
         case CamTrigType::servo:
         case CamTrigType::relay:
         case CamTrigType::gopro:
+        case CamTrigType::mav_cam:
             return (CamTrigType)type;
         default:
             return CamTrigType::servo;

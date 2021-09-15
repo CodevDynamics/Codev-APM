@@ -1292,6 +1292,7 @@ void GCS_MAVLINK::packetReceived(const mavlink_status_t &status,
     }
     if (!routing.check_and_forward(chan, msg)) {
         // the routing code has indicated we should not handle this packet locally
+        gcs().send_text(MAV_SEVERITY_INFO,"discard the packet");  
         return;
     }
     if (!accept_packet(status, msg)) {
