@@ -115,7 +115,7 @@ void AP_Mount_Mavlink::update()
     } else if (rc_targeting_mnt) {
         // RATES CONTROL
         send_do_mount_control(mount_control_pitch, mount_control_roll, mount_control_yaw, (enum MAV_MOUNT_MODE)get_mode_cfg());
-    } else {
+    } else  if (resend_now) {
         mount_control_roll = ToDeg(_angle_ef_target_rad.x)*100;
         mount_control_yaw = ToDeg(_angle_ef_target_rad.z)*100;
         mount_control_pitch = ToDeg(_angle_ef_target_rad.y)*100;
