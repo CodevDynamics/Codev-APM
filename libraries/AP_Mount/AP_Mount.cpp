@@ -632,6 +632,7 @@ MAV_RESULT AP_Mount::handle_command_long(const mavlink_command_long_t &packet)
     case MAV_CMD_DO_MOUNT_CONTROL:
         return handle_command_do_mount_control(packet);
     case MAV_CMD_IMAGE_START_CAPTURE:
+    case MAV_CMD_IMAGE_STOP_CAPTURE:
     case MAV_CMD_VIDEO_START_CAPTURE:
     case MAV_CMD_VIDEO_STOP_CAPTURE:
     case MAV_CMD_SET_CAMERA_MODE:
