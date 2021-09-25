@@ -170,8 +170,6 @@ void AP_Camera::trigger_pic()
         mav_cmd_long.param5 = 0.0f;
         mav_cmd_long.param6 = 0.0f;
 
-        gcs().send_text(MAV_SEVERITY_INFO,"Take a picture(%d)", _image_index);
-        
         AP_Mount *mount = AP::mount();
         if (mount == nullptr) {
             return;
