@@ -274,7 +274,7 @@ void MAVLink_routing::learn_route(mavlink_channel_t in_channel, const mavlink_me
 #if false   // original code in APM
                 routes[i].mavtype = mavlink_msg_heartbeat_get_type(&msg);
 #else
-                if (msg.compid != 154 ) {
+                if (msg.compid != MAV_COMP_ID_GIMBAL ) {
                     routes[i].mavtype = mavlink_msg_heartbeat_get_type(&msg);
                 }
                 else { // If come from a gimbal, set mavtype as GIMBAL type.
