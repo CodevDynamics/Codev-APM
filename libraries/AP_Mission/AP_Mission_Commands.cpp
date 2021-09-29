@@ -101,7 +101,6 @@ bool AP_Mission::start_command_camera(const AP_Mission::Mission_Command& cmd)
         return true;
 
     case MAV_CMD_DO_SET_CAM_TRIGG_DIST:
-        gcs().send_text(MAV_SEVERITY_INFO, "set_trigger_distance: %f", cmd.content.cam_trigg_dist.meters);
         if (cmd.content.cam_trigg_dist.meters >= 0) 
         {
             camera->set_trigger_distance(cmd.content.cam_trigg_dist.meters);
