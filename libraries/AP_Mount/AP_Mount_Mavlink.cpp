@@ -263,7 +263,7 @@ void AP_Mount_Mavlink::find_gimbal()
         return;
     }
 
-    bool findgimbal = GCS_MAVLINK::find_by_mavtype(MAV_TYPE_GENERIC, _sysid, _compid, _chan);
+    bool findgimbal = GCS_MAVLINK::find_by_mavtype(MAV_TYPE_GIMBAL, _sysid, _compid, _chan);
     findgimbal &= (_compid == 154);
     if (findgimbal) {
         _initialised = true;
