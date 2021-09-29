@@ -271,7 +271,16 @@ void MAVLink_routing::learn_route(mavlink_channel_t in_channel, const mavlink_me
             routes[i].compid == msg.compid &&
             routes[i].channel == in_channel) {
             if (routes[i].mavtype == 0 && msg.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
+#if false   // original code in APM
                 routes[i].mavtype = mavlink_msg_heartbeat_get_type(&msg);
+#else
+                if (msg.compid != 154 ) {
+                    routes[i].mavtype = mavlink_msg_heartbeat_get_type(&msg);
+                }
+                else { // If come from a gimbal, set mavtype as GIMBAL type.
+                    routes[i].mavtype = MAV_TYPE_GIMBAL;
+                }
+#endif                
             }
             break;
         }
@@ -281,7 +290,16 @@ void MAVLink_routing::learn_route(mavlink_channel_t in_channel, const mavlink_me
         routes[i].compid = msg.compid;
         routes[i].channel = in_channel;
         if (msg.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
-            routes[i].mavtype = mavlink_msg_heartbeat_get_type(&msg);
+#if false   // original code in APM
+                routes[i].mavtype = mavlink_msg_heartbeat_get_type(&msg);
+#else
+                if (msg.compid != 154 ) {
+                    routes[i].mavtype = mavlink_msg_heartbeat_get_type(&msg);
+                }
+                else { // If come from a gimbal, set mavtype as GIMBAL type.
+                    routes[i].mavtype = MAV_TYPE_GIMBAL;
+                }
+#endif                
         }
         num_routes++;
 #if ROUTING_DEBUG
