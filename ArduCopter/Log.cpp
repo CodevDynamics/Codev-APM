@@ -424,6 +424,16 @@ void Copter::Log_Write_Precland()
  #endif     // PRECISION_LANDING == ENABLED
 }
 
+void Copter::Log_Write_Precland_SM() {
+#if PRECISION_LANDING == ENABLED
+    // exit immediately if not enabled
+    if (!g2.precland_sm->is_enable() || !g2.precland_sm->is_active()) {
+        return;
+    }
+    g2.precland_sm->write_log();
+#endif     // PRECISION_LANDING == ENABLED
+}
+
 // guided target logging
 struct PACKED log_GuidedTarget {
     LOG_PACKET_HEADER;

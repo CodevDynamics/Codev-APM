@@ -66,6 +66,14 @@ public:
     ///     should be called once before the waypoint controller is used but does not need to be called before subsequent updates to destination
     void wp_and_spline_init();
 
+    void set_radius(float radius);
+
+    void reset_radius();
+
+    void use_rangefinder(bool use);
+
+    void reset_rangefinder_use();
+
     /// set current target horizontal speed during wp navigation
     void set_speed_xy(float speed_cms);
 

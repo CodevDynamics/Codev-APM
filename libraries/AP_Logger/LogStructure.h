@@ -115,6 +115,8 @@ const struct MultiplierStructure log_Multipliers[] = {
 #define HEAD_BYTE1  0xA3    // Decimal 163
 #define HEAD_BYTE2  0x95    // Decimal 149
 
+#include <AC_PrecLand/LogStructure.h>
+
 // structure used to define logging format
 struct LogStructure {
     uint8_t msg_type;
@@ -1616,6 +1618,7 @@ struct PACKED log_Arm_Disarm {
       "ISBD",ISBD_FMT,ISBD_LABELS, ISBD_UNITS, ISBD_MULTS }, \
     { LOG_ORGN_MSG, sizeof(log_ORGN), \
       "ORGN","QBLLe","TimeUS,Type,Lat,Lng,Alt", "s-DUm", "F-GGB" },   \
+    LOG_STRUCTURE_FROM_PLSM \
     { LOG_DF_FILE_STATS, sizeof(log_DSF), \
       "DSF", "QIHIIII", "TimeUS,Dp,Blk,Bytes,FMn,FMx,FAv", "s--b---", "F--0---" }, \
     { LOG_RPM_MSG, sizeof(log_RPM), \
@@ -1840,6 +1843,7 @@ enum LogMessages : uint8_t {
     LOG_OA_BENDYRULER_MSG,
     LOG_OA_DIJKSTRA_MSG,
 
+    LOG_PRECLAND_SM_MSG,
     _LOG_LAST_MSG_
 };
 

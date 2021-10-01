@@ -131,7 +131,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK_CLASS(AC_Fence,             &copter.fence,               update,          10, 100),
 #endif
 #if PRECISION_LANDING == ENABLED
-    SCHED_TASK(update_precland,      400,     50),
+    SCHED_TASK(update_precland,      400,     150),
 #endif
 #if FRAME_CONFIG == HELI_FRAME
     SCHED_TASK(check_dynamic_flight,  50,     75),
@@ -414,6 +414,7 @@ void Copter::twentyfive_hz_logging()
 #if PRECISION_LANDING == ENABLED
     // log output
     Log_Write_Precland();
+    Log_Write_Precland_SM();
 #endif
 
 #if MODE_AUTOROTATE_ENABLED == ENABLED

@@ -355,6 +355,11 @@ void ModeRTL::land_start()
 
     // optionally deploy landing gear
     copter.landinggear.deploy_for_landing();
+
+#if PRECISION_LANDING == ENABLED
+    g2.precland_sm->init();
+#endif
+
 }
 
 bool ModeRTL::is_landing() const

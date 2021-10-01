@@ -54,6 +54,9 @@ void Copter::read_rangefinder(void)
         // tilt corrected but unfiltered, not glitch protected alt
         rf_state.alt_cm = tilt_correction * rangefinder.distance_cm_orient(rf_orient);
 
+        // remember inertial alt to allow us to interpolate rangefinder
+        rf_state.inertial_alt_cm = inertial_nav.get_altitude();
+
         // glitch handling.  rangefinder readings more than RANGEFINDER_GLITCH_ALT_CM from the last good reading
         // are considered a glitch and glitch_count becomes non-zero
         // glitches clear after RANGEFINDER_GLITCH_NUM_SAMPLES samples in a row.
@@ -133,6 +136,32 @@ void Copter::rpm_update(void)
         }
     }
 #endif
+}
+
+
+/*
+  get inertially interpolated rangefinder height. Inertial height is
+  recorded whenever we update the rangefinder height, then we use the
+  difference between the inertial height at that time and the current
+  inertial height to give us interpolation of height from rangefinder
+ */
+bool Copter::get_rangefinder_height_interpolated_cm(int32_t& ret, bool glitch_protected)
+{
+    if (!rangefinder_alt_ok()) {
+        return false;
+    }
+    if (!glitch_protected) {
+        ret = rangefinder_state.alt_cm_filt.get();
+    } else {
+        ret = rangefinder_state.alt_cm_glitch_protected;
+        if (rangefinder_state.alt_cm_glitch_protected != rangefinder_state.alt_cm) {
+            return false; // we are glitching don't try interpolation as we don't have the full inertia history
+        }
+    }
+
+    float inertial_alt_cm = inertial_nav.get_altitude();
+    ret += inertial_alt_cm - rangefinder_state.inertial_alt_cm;
+    return true;
 }
 
 // initialise optical flow sensor
