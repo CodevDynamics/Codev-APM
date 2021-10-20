@@ -98,11 +98,35 @@ const AP_Param::GroupInfo AC_PrecLand::var_info[] = {
     // @DisplayName: Precision Landing sensor lag
     // @Description: Precision Landing sensor lag, to cope with variable landing_target latency
     // @Range: 0.02 0.250
-    // @Increment: 1
     // @Units: s
     // @User: Advanced
-    // @RebootRequired: True
     AP_GROUPINFO("LAG", 9, AC_PrecLand, _lag, 0.02f), // 20ms is the old default buffer size (8 frames @ 400hz/2.5ms)
+
+    // @Param: MIN_ALT
+    // @DisplayName: Minimum Altitude for Precision Landing Control
+    // @Description: Precision Landing Control for minimum altitude.
+    // @Range: 15.0 35.0
+    // @Units: cm
+    // @User: Advanced
+    AP_GROUPINFO("MIN_ALT", 10, AC_PrecLand, _min_altitude, 20.0f),    // 20cm is the default altitude
+
+    // @Param: MAX_ALT
+    // @DisplayName: Maximum Altitude for Precision Landing Control
+    // @Description: Precision Landing Control for maximum altitude.
+    // @Range: 100.0 500.0
+    // @Increment: 10
+    // @Units: cm
+    // @User: Advanced
+    AP_GROUPINFO("MAX_ALT", 11, AC_PrecLand, _max_altitude, 300.0f),    // 20cm is the default altitude
+
+    // @Param: ACC_ERR
+    // @DisplayName: Acceptable Error
+    // @Description: Acceptable Error in Precision Landing
+    // @Range: 5 30
+    // @Increment: 1
+    // @Units: cm
+    // @User: Advanced
+    AP_GROUPINFO("ACC_ERR", 12, AC_PrecLand, _acceptable_error, 15.0f),    // 20cm is the default altitude
 
     AP_GROUPEND
 };
@@ -447,4 +471,19 @@ void AC_PrecLand::run_output_prediction()
     Vector3f land_ofs_ned_m = _ahrs.get_rotation_body_to_ned() * Vector3f(_land_ofs_cm_x,_land_ofs_cm_y,0) * 0.01f;
     _target_pos_rel_out_NE.x += land_ofs_ned_m.x;
     _target_pos_rel_out_NE.y += land_ofs_ned_m.y;
+}
+
+float AC_PrecLand::get_min_alti()
+{
+    return _min_altitude;
+}
+
+float AC_PrecLand::get_max_alti()
+{
+    return _max_altitude;
+}
+
+float AC_PrecLand::get_acceptable_error()
+{
+    return _acceptable_error;
 }
