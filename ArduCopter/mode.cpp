@@ -524,12 +524,17 @@ void Mode::land_run_vertical_control(bool pause_descent)
 #if PRECISION_LANDING == ENABLED
     const bool navigating = pos_control->is_active_xy();
     bool doing_precision_landing = !copter.ap.land_repo_active && copter.precland.target_acquired() && navigating;
+    float precland_min_altitude = copter.precland.get_min_alti();
+    float precland_max_altitude = copter.precland.get_max_alti();
+    float precland_acceptable_error = copter.precland.get_acceptable_error();
 #else
     bool doing_precision_landing = false;
+    float precland_min_altitude = 35.0f;
+    float precland_max_altitude = 200.0f
+    const float precland_acceptable_error = 15.0f;
 #endif
 
     // compute desired velocity
-    const float precland_acceptable_error = 15.0f;
     const float precland_min_descent_speed = 10.0f;
 
     float cmb_rate = 0;
@@ -550,7 +555,7 @@ void Mode::land_run_vertical_control(bool pause_descent)
         // Constrain the demanded vertical velocity so that it is between the configured maximum descent speed and the configured minimum descent speed.
         cmb_rate = constrain_float(cmb_rate, max_land_descent_velocity, -abs(g.land_speed));
 
-        if (doing_precision_landing && copter.rangefinder_alt_ok() && copter.rangefinder_state.alt_cm > 35.0f && copter.rangefinder_state.alt_cm < 200.0f) {
+        if (doing_precision_landing && copter.rangefinder_alt_ok() && copter.rangefinder_state.alt_cm > precland_min_altitude && copter.rangefinder_state.alt_cm < precland_max_altitude) {
             float max_descent_speed = abs(g.land_speed)*0.5f;
             float land_slowdown = MAX(0.0f, pos_control->get_horizontal_error()*(max_descent_speed/precland_acceptable_error));
             cmb_rate = MIN(-precland_min_descent_speed, -max_descent_speed+land_slowdown);
