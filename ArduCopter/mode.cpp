@@ -519,6 +519,7 @@ int32_t Mode::get_alt_above_ground_cm(void)
     return alt_above_ground;
 }
 
+// CheckPoint
 void Mode::land_run_vertical_control(bool pause_descent)
 {
 #if PRECISION_LANDING == ENABLED
@@ -567,11 +568,26 @@ void Mode::land_run_vertical_control(bool pause_descent)
     pos_control->update_z_controller();
 }
 
+// CheckPoint
 void Mode::land_run_horizontal_control()
 {
     float target_roll = 0.0f;
     float target_pitch = 0.0f;
-    float target_yaw_rate = 0;
+    float target_yaw_rate = 0;    
+
+
+#if PRECISION_LANDING == ENABLED
+    bool doing_precision_landing = !copter.ap.land_repo_active && copter.precland.target_acquired();
+
+    if (doing_precision_landing && copter.rangefinder_alt_ok()) {
+        float start_alt = copter.precland.get_start_alti();
+
+        // If the drone is of out control region of precision landing, then turn off "doing_precision_landing"
+        if (copter.rangefinder_state.alt_cm > start_alt) {
+            doing_precision_landing = false;
+        }
+    }
+#endif    
 
     // relax loiter target if we might be landed
     if (copter.ap.land_complete_maybe) {
@@ -593,7 +609,14 @@ void Mode::land_run_horizontal_control()
             update_simple_mode();
 
             // convert pilot input to lean angles
+            // CheckPoint
+#if PRECISION_LANDING == ENABLED
+            float target_max_angle = (doing_precision_landing) ? copter.precland.get_angle_max():loiter_nav->get_angle_max_cd();
+
+            get_pilot_desired_lean_angles(target_roll, target_pitch, target_max_angle, attitude_control->get_althold_lean_angle_max());
+#else
             get_pilot_desired_lean_angles(target_roll, target_pitch, loiter_nav->get_angle_max_cd(), attitude_control->get_althold_lean_angle_max());
+#endif
 
             // record if pilot has overridden roll or pitch
             if (!is_zero(target_roll) || !is_zero(target_pitch)) {
@@ -612,7 +635,6 @@ void Mode::land_run_horizontal_control()
     }
 
 #if PRECISION_LANDING == ENABLED
-    bool doing_precision_landing = !copter.ap.land_repo_active && copter.precland.target_acquired();
     // run precision landing
     if (doing_precision_landing) {
         Vector2f target_pos, target_vel_rel;

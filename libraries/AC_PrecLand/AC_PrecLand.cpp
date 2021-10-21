@@ -100,7 +100,7 @@ const AP_Param::GroupInfo AC_PrecLand::var_info[] = {
     // @Range: 0.02 0.250
     // @Units: s
     // @User: Advanced
-    AP_GROUPINFO("LAG", 9, AC_PrecLand, _lag, 0.02f), // 20ms is the old default buffer size (8 frames @ 400hz/2.5ms)
+    AP_GROUPINFO("LAG", 9, AC_PrecLand, _lag, 0.02f),
 
     // @Param: MIN_ALT
     // @DisplayName: Minimum Altitude for Precision Landing Control
@@ -108,7 +108,7 @@ const AP_Param::GroupInfo AC_PrecLand::var_info[] = {
     // @Range: 15.0 35.0
     // @Units: cm
     // @User: Advanced
-    AP_GROUPINFO("MIN_ALT", 10, AC_PrecLand, _min_altitude, 20.0f),    // 20cm is the default altitude
+    AP_GROUPINFO("MIN_ALT", 10, AC_PrecLand, _min_altitude, 20.0f),
 
     // @Param: MAX_ALT
     // @DisplayName: Maximum Altitude for Precision Landing Control
@@ -117,7 +117,7 @@ const AP_Param::GroupInfo AC_PrecLand::var_info[] = {
     // @Increment: 10
     // @Units: cm
     // @User: Advanced
-    AP_GROUPINFO("MAX_ALT", 11, AC_PrecLand, _max_altitude, 300.0f),    // 20cm is the default altitude
+    AP_GROUPINFO("MAX_ALT", 11, AC_PrecLand, _max_altitude, 300.0f),
 
     // @Param: ACC_ERR
     // @DisplayName: Acceptable Error
@@ -126,7 +126,25 @@ const AP_Param::GroupInfo AC_PrecLand::var_info[] = {
     // @Increment: 1
     // @Units: cm
     // @User: Advanced
-    AP_GROUPINFO("ACC_ERR", 12, AC_PrecLand, _acceptable_error, 15.0f),    // 20cm is the default altitude
+    AP_GROUPINFO("ACC_ERR", 12, AC_PrecLand, _acceptable_error, 15.0f),
+
+    // @Param: ANGLE_MAX
+    // @DisplayName: Maximum Angle
+    // @Description: Maximum Angle for controlling Attitude during PRELAND
+    // @Range: 10 30
+    // @Increment: 1
+    // @Units: cdeg
+    // @User: Advanced
+    AP_GROUPINFO("ANGLE_MAX", 13, AC_PrecLand, _angle_max, 10.0f),
+
+    // @Param: START_ALT
+    // @DisplayName: Starting Altitude of Precision Landing
+    // @Description: Starting Altitude of Precision Landing
+    // @Range: 1000 50000
+    // @Increment: 100
+    // @Units: cm
+    // @User: Advanced
+    AP_GROUPINFO("START_ALT", 14, AC_PrecLand, _start_alt, 1000.0f),
 
     AP_GROUPEND
 };
@@ -401,7 +419,7 @@ bool AC_PrecLand::retrieve_los_meas(Vector3f& target_vec_unit_body)
         return false;
     }
 }
-
+// CheckPoint
 bool AC_PrecLand::construct_pos_meas_using_rangefinder(float rangefinder_alt_m, bool rangefinder_alt_valid)
 {
     Vector3f target_vec_unit_body;
@@ -473,17 +491,9 @@ void AC_PrecLand::run_output_prediction()
     _target_pos_rel_out_NE.y += land_ofs_ned_m.y;
 }
 
-float AC_PrecLand::get_min_alti()
-{
-    return _min_altitude;
-}
-
-float AC_PrecLand::get_max_alti()
-{
-    return _max_altitude;
-}
-
-float AC_PrecLand::get_acceptable_error()
-{
-    return _acceptable_error;
-}
+// Added by argosdyne
+float AC_PrecLand::get_min_alti() { return _min_altitude; }
+float AC_PrecLand::get_max_alti() { return _max_altitude; }
+float AC_PrecLand::get_acceptable_error() { return _acceptable_error; }
+float AC_PrecLand::get_angle_max() { return _angle_max; }
+float AC_PrecLand::get_start_alti() { return _start_alt; }
