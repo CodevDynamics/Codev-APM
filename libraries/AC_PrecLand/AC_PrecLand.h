@@ -100,6 +100,12 @@ public:
     // get the acceptable error for precision landing control
     float get_acceptable_error();
 
+    // get the max angle for precision landing control
+    float get_angle_max();
+
+    // get the start altitude for precision landing control
+    float get_start_alti();
+
 private:
     enum estimator_type_t {
         ESTIMATOR_TYPE_RAW_SENSOR = 0,
@@ -135,7 +141,9 @@ private:
     AP_Float                    _min_altitude;       // minimum altitude for precision-landing
     AP_Float                    _max_altitude;       // maximum altitude for precision-landing
     AP_Float                    _acceptable_error;   // precision landing acceptable error
-    AP_Vector3f                 _cam_offset;        // Position of the camera relative to the CG
+    AP_Float                    _angle_max;          // maximum angle for controlling attitude
+    AP_Float                    _start_alt;          // start altotude for precision-landing
+    AP_Vector3f                 _cam_offset;         // Position of the camera relative to the CG
 
     uint32_t                    _last_update_ms;    // system time in millisecond when update was last called
     bool                        _target_acquired;   // true if target has been seen recently
