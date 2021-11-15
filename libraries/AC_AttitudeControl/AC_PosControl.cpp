@@ -250,6 +250,8 @@ AC_PosControl::AC_PosControl(const AP_AHRS_View& ahrs, const AP_InertialNav& ina
     _limit.vel_up = true;
     _limit.vel_down = true;
     _limit.accel_xy = true;
+
+    _is_preland = false;
 }
 
 ///
@@ -792,12 +794,22 @@ bool AC_PosControl::is_active_xy() const
 }
 
 /// get_lean_angle_max_cd - returns the maximum lean angle the autopilot may request
+// Check Point - force "_lean_angle_max" to "10" and check
 float AC_PosControl::get_lean_angle_max_cd() const
 {
     if (is_zero(_lean_angle_max)) {
         return _attitude_control.lean_angle_max();
     }
+#if true // ARGOSDYNE
+    if (_is_preland == true) {
+        return _preland_max_angle * 100.0f;
+    }
+    else {
+        return _lean_angle_max * 100.0f;
+    }
+#else
     return _lean_angle_max * 100.0f;
+#endif
 }
 
 /// init_xy_controller - initialise the xy controller
@@ -1047,6 +1059,7 @@ void AC_PosControl::desired_vel_to_pos(float nav_dt)
 ///     desired velocity (_vel_desired) is combined into final target velocity
 ///     converts desired velocities in lat/lon directions to accelerations in lat/lon frame
 ///     converts desired accelerations provided in lat/lon frame to roll/pitch angles
+/// Check Point 
 void AC_PosControl::run_xy_controller(float dt)
 {
     float ekfGndSpdLimit, ekfNavVelGainScaler;

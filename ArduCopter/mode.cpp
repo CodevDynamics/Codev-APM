@@ -268,6 +268,9 @@ bool Copter::set_mode(Mode::Number mode, ModeReason reason)
     // perform any cleanup required by previous flight mode
     exit_mode(flightmode, new_flightmode);
 
+    // Disable precision mode as default
+    pos_control->set_precland_mode(false);
+    
     // update flight mode
     flightmode = new_flightmode;
     control_mode = mode;
@@ -573,20 +576,11 @@ void Mode::land_run_horizontal_control()
 {
     float target_roll = 0.0f;
     float target_pitch = 0.0f;
-    float target_yaw_rate = 0;    
+    float target_yaw_rate = 0;
 
-
-#if PRECISION_LANDING == ENABLED
-    bool doing_precision_landing = !copter.ap.land_repo_active && copter.precland.target_acquired();
-
-    if (doing_precision_landing && copter.rangefinder_alt_ok()) {
-        float start_alt = copter.precland.get_start_alti();
-
-        // If the drone is of out control region of precision landing, then turn off "doing_precision_landing"
-        if (copter.rangefinder_state.alt_cm > start_alt) {
-            doing_precision_landing = false;
-        }
-    }
+#if true
+    // disable precland mode as default
+    pos_control->set_precland_mode(false);
 #endif    
 
     // relax loiter target if we might be landed
@@ -609,14 +603,7 @@ void Mode::land_run_horizontal_control()
             update_simple_mode();
 
             // convert pilot input to lean angles
-            // CheckPoint
-#if PRECISION_LANDING == ENABLED
-            float target_max_angle = (doing_precision_landing) ? copter.precland.get_angle_max():loiter_nav->get_angle_max_cd();
-
-            get_pilot_desired_lean_angles(target_roll, target_pitch, target_max_angle, attitude_control->get_althold_lean_angle_max());
-#else
             get_pilot_desired_lean_angles(target_roll, target_pitch, loiter_nav->get_angle_max_cd(), attitude_control->get_althold_lean_angle_max());
-#endif
 
             // record if pilot has overridden roll or pitch
             if (!is_zero(target_roll) || !is_zero(target_pitch)) {
@@ -635,6 +622,17 @@ void Mode::land_run_horizontal_control()
     }
 
 #if PRECISION_LANDING == ENABLED
+    bool doing_precision_landing = !copter.ap.land_repo_active && copter.precland.target_acquired();
+
+    if (doing_precision_landing && copter.rangefinder_alt_ok()) {
+        float start_alt = copter.precland.get_start_alti();
+
+        // If the drone is of out control region of precision landing, then turn off "doing_precision_landing"
+        if (copter.rangefinder_state.alt_cm > start_alt) {
+            doing_precision_landing = false;
+        }
+    }
+
     // run precision landing
     if (doing_precision_landing) {
         Vector2f target_pos, target_vel_rel;
@@ -646,6 +644,12 @@ void Mode::land_run_horizontal_control()
             target_vel_rel.x = -inertial_nav.get_velocity().x;
             target_vel_rel.y = -inertial_nav.get_velocity().y;
         }
+#if true
+        float preland_max_angle = copter.precland.get_angle_max();
+
+        pos_control->set_precland_max_angle(preland_max_angle);
+        pos_control->set_precland_mode(true);
+#endif        
         pos_control->set_xy_target(target_pos.x, target_pos.y);
         pos_control->override_vehicle_velocity_xy(-target_vel_rel);
     }

@@ -310,6 +310,10 @@ public:
     // enable or disable high vibration compensation
     void set_vibe_comp(bool on_off) { _vibe_comp_enabled = on_off; }
 
+    // set precision landing mode or not
+    void set_precland_mode(bool isPreland ) { _is_preland = isPreland; }
+    void set_precland_max_angle(bool max_angle) { _preland_max_angle = max_angle; }
+
     static const struct AP_Param::GroupInfo var_info[];
 
 protected:
@@ -433,4 +437,8 @@ protected:
 
     // high vibration handling
     bool        _vibe_comp_enabled;     // true when high vibration compensation is on
+
+    // precision landing mode 
+    bool        _is_preland;            // true if the vehicle is in precision-landing
+    float       _preland_max_angle;     // max angle for precision landing mode
 };
