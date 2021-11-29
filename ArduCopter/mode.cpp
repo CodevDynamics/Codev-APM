@@ -519,17 +519,23 @@ int32_t Mode::get_alt_above_ground_cm(void)
     return alt_above_ground;
 }
 
+// CheckPoint
 void Mode::land_run_vertical_control(bool pause_descent)
 {
 #if PRECISION_LANDING == ENABLED
     const bool navigating = pos_control->is_active_xy();
     bool doing_precision_landing = !copter.ap.land_repo_active && copter.precland.target_acquired() && navigating;
+    float precland_min_altitude = copter.precland.get_min_alti();
+    float precland_max_altitude = copter.precland.get_max_alti();
+    float precland_acceptable_error = copter.precland.get_acceptable_error();
 #else
     bool doing_precision_landing = false;
+    float precland_min_altitude = 35.0f;
+    float precland_max_altitude = 200.0f
+    const float precland_acceptable_error = 15.0f;
 #endif
 
     // compute desired velocity
-    const float precland_acceptable_error = 15.0f;
     const float precland_min_descent_speed = 10.0f;
 
     float cmb_rate = 0;
@@ -550,7 +556,7 @@ void Mode::land_run_vertical_control(bool pause_descent)
         // Constrain the demanded vertical velocity so that it is between the configured maximum descent speed and the configured minimum descent speed.
         cmb_rate = constrain_float(cmb_rate, max_land_descent_velocity, -abs(g.land_speed));
 
-        if (doing_precision_landing && copter.rangefinder_alt_ok() && copter.rangefinder_state.alt_cm > 35.0f && copter.rangefinder_state.alt_cm < 200.0f) {
+        if (doing_precision_landing && copter.rangefinder_alt_ok() && copter.rangefinder_state.alt_cm > precland_min_altitude && copter.rangefinder_state.alt_cm < precland_max_altitude) {
             float max_descent_speed = abs(g.land_speed)*0.5f;
             float land_slowdown = MAX(0.0f, pos_control->get_horizontal_error()*(max_descent_speed/precland_acceptable_error));
             cmb_rate = MIN(-precland_min_descent_speed, -max_descent_speed+land_slowdown);
@@ -562,11 +568,26 @@ void Mode::land_run_vertical_control(bool pause_descent)
     pos_control->update_z_controller();
 }
 
+// CheckPoint
 void Mode::land_run_horizontal_control()
 {
     float target_roll = 0.0f;
     float target_pitch = 0.0f;
-    float target_yaw_rate = 0;
+    float target_yaw_rate = 0;    
+
+
+#if PRECISION_LANDING == ENABLED
+    bool doing_precision_landing = !copter.ap.land_repo_active && copter.precland.target_acquired();
+
+    if (doing_precision_landing && copter.rangefinder_alt_ok()) {
+        float start_alt = copter.precland.get_start_alti();
+
+        // If the drone is of out control region of precision landing, then turn off "doing_precision_landing"
+        if (copter.rangefinder_state.alt_cm > start_alt) {
+            doing_precision_landing = false;
+        }
+    }
+#endif    
 
     // relax loiter target if we might be landed
     if (copter.ap.land_complete_maybe) {
@@ -607,7 +628,6 @@ void Mode::land_run_horizontal_control()
     }
 
 #if PRECISION_LANDING == ENABLED
-    bool doing_precision_landing = !copter.ap.land_repo_active && copter.precland.target_acquired();
     // run precision landing
     if (doing_precision_landing) {
         Vector2f target_pos, target_vel_rel;

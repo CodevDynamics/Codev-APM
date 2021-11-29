@@ -48,6 +48,7 @@ void Copter::read_rangefinder(void)
         enum Rotation rf_orient = rngfnd[i].orientation;
 
         // update health
+        // CheckPoint
         rf_state.alt_healthy = ((rangefinder.status_orient(rf_orient) == RangeFinder::RangeFinder_Good) &&
                                 (rangefinder.range_valid_count_orient(rf_orient) >= RANGEFINDER_HEALTH_MAX));
 

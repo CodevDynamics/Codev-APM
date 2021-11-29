@@ -11,6 +11,8 @@ void Copter::init_precland()
     copter.precland.init(400);
 }
 
+// CheckPoint
+
 void Copter::update_precland()
 {
     int32_t height_above_ground_cm = current_loc.alt;
