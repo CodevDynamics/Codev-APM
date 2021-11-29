@@ -108,6 +108,7 @@ private:
 
     // parameters
     AP_Int8     _enabled;           // 1 if this subsystem is enabled
+    AP_Int8     _is_fix_mode;       // 1 if the target is fixed
     AP_Int16    _sysid;             // target's mavlink system id (0 to use first sysid seen)
     AP_Float    _dist_max;          // maximum distance to target.  targets further than this will be ignored
     AP_Int8     _offset_type;       // offset frame type (0:North-East-Down, 1:RelativeToLeadVehicleHeading)

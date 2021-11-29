@@ -120,6 +120,13 @@ const AP_Param::GroupInfo AP_Follow::var_info[] = {
     AP_GROUPINFO("_ALT_TYPE", 10, AP_Follow, _alt_type, AP_FOLLOW_ALTITUDE_TYPE_RELATIVE),
 #endif
 
+    // @Param: _OFS_ENABLE
+    // @DisplayName: Offset used or not
+    // @Description: Enabled/disable following offset
+    // @Values: 0:Disabled,1:Enabled
+    // @User: Standard
+    AP_GROUPINFO_FLAGS("_FIX_MODE", 11, AP_Follow, _is_fix_mode, 0, AP_PARAM_FLAG_ENABLE),
+
     AP_GROUPEND
 };
 
@@ -152,8 +159,11 @@ bool AP_Follow::get_target_location_and_velocity(Location &loc, Vector3f &vel_ne
     }
 
     // check for timeout
-    if ((_last_location_update_ms == 0) || (AP_HAL::millis() - _last_location_update_ms > AP_FOLLOW_TIMEOUT_MS)) {
-        return false;
+    if (_is_fix_mode == false)    
+    {
+        if ((_last_location_update_ms == 0) || (AP_HAL::millis() - _last_location_update_ms > AP_FOLLOW_TIMEOUT_MS)) {
+            return false;
+        }
     }
 
     // calculate time since last actual position update
@@ -206,20 +216,27 @@ bool AP_Follow::get_target_dist_and_vel_ned(Vector3f &dist_ned, Vector3f &dist_w
         return false;
     }
 
-    // initialise offsets from distance vector if required
-    init_offsets_if_required(dist_vec);
-
-    // get offsets
-    Vector3f offsets;
-    if (!get_offsets_ned(offsets)) {
-        clear_dist_and_bearing_to_target();
-        return false;
-    }
-
     // calculate results
     dist_ned = dist_vec;
-    dist_with_offs = dist_vec + offsets;
     vel_ned = veh_vel;
+
+    if (_is_fix_mode == false)
+    {
+        // initialise offsets from distance vector if required
+        init_offsets_if_required(dist_vec);
+
+        // get offsets
+        Vector3f offsets;
+        if (!get_offsets_ned(offsets)) {
+            clear_dist_and_bearing_to_target();
+            return false;
+        }
+        dist_with_offs = dist_vec + offsets;
+    }
+    else
+    {
+        dist_with_offs = dist_vec;
+    }
 
     // record distance and heading for reporting purposes
     if (is_zero(dist_with_offs.x) && is_zero(dist_with_offs.y)) {
@@ -352,7 +369,7 @@ bool AP_Follow::get_velocity_ned(Vector3f &vel_ned, float dt) const
 void AP_Follow::init_offsets_if_required(const Vector3f &dist_vec_ned)
 {
     // return immediately if offsets have already been set
-    if (!_offset.get().is_zero()) {
+    if (_offset.get().is_zero() == false) {
         return;
     }
     _offsets_were_zero = true;
