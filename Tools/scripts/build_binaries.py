@@ -614,6 +614,7 @@ is bob we will attempt to checkout bob-AVR'''
                 "SITL_x86_64_linux_gnu",
                 "SITL_arm_linux_gnueabihf",
                 "codevdp1000",
+                "CodevDp1000-v2"
                 ]
 
     def AP_Periph_boards(self):
