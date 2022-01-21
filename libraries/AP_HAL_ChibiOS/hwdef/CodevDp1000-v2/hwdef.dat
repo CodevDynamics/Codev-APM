@@ -232,4 +232,5 @@ define HAL_ESC_NUM 4
 # ROMFS io_firmware.bin Tools/IO_Firmware/iofirmware_lowpolh.bin
 
 
-env DEFAULT_PARAMETERS Tools/Frame_params/Codevdp1000-v2.param
+# select tallonA drone
+env DEFAULT_PARAMETERS Tools/Frame_params/Codevdp1000-v2_ta.param
