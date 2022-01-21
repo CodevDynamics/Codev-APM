@@ -51,6 +51,7 @@ brand_map = {
     'OmnibusNanoV6' : ('Omnibus Nano V6', 'Airbot'),
     'speedybeef4' : ('SpeedyBee F4', 'SpeedyBee'),
     'CodevDp1000-v2' : ('CodevDp1000-v2', 'Codev'),
+    'CodevDp1000-v3' : ('CodevDp1000-v3', 'Codev'),
 }
 
 class Firmware():
@@ -192,6 +193,7 @@ class ManifestGenerator():
             'VRCore-v10': ['0x27AC/0x1910'],
             'VRUBrain-v51': ['0x27AC/0x1351'],
             'CodevDp1000-v2': ['0x2DAE/0x1016'],
+            'CodevDp1000-v3': ['0x2DAE/0x1016'],
         }
         if 'USBID' in apj_json:
             # newer APJ files have USBID in the json data
