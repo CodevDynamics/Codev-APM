@@ -1364,6 +1364,10 @@ void NavEKF3_core::CovariancePrediction()
         }
     }
 
+    // inhibitDelVelBiasStates z bias learn
+    zeroCols(P,15,15);
+    zeroRows(P,15,15);
+
     // if the total position variance exceeds 1e4 (100m), then stop covariance
     // growth by setting the predicted to the previous values
     // This prevent an ill conditioned matrix from occurring for long periods
@@ -1572,6 +1576,10 @@ void NavEKF3_core::ConstrainStates()
     for (uint8_t i=10; i<=12; i++) statesArray[i] = constrain_float(statesArray[i],-GYRO_BIAS_LIMIT*dtEkfAvg,GYRO_BIAS_LIMIT*dtEkfAvg);
     // the accelerometer bias limit is controlled by a user adjustable parameter
     for (uint8_t i=13; i<=15; i++) statesArray[i] = constrain_float(statesArray[i],-frontend->_accBiasLim*dtEkfAvg,frontend->_accBiasLim*dtEkfAvg);
+
+    // inhibitDelVelBiasStates z bias learn
+    statesArray[15] = 0.0f;
+
     // earth magnetic field limit
     if (frontend->_mag_ef_limit <= 0 || !have_table_earth_field) {
         // constrain to +/-1Ga

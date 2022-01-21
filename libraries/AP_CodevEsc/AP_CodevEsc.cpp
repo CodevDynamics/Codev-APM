@@ -491,17 +491,11 @@ void AP_CodevEsc::send_esc_telemetry_mavlink(uint8_t mav_chan)
         current[idx]      = _esc_status[i].current * 10;
         rpm[idx]          = _esc_status[i].rpm;
 
-        if (i % 4 == 3 || i == channels_count - 1) {
-            if (!HAVE_PAYLOAD_SPACE((mavlink_channel_t)mav_chan, ESC_TELEMETRY_1_TO_4)) {
-                return;
-            }
-            if (i < 4) {
-                mavlink_msg_esc_telemetry_1_to_4_send((mavlink_channel_t)mav_chan, temperature, voltage, current, totalcurrent, rpm, count);
-            } else {
-                mavlink_msg_esc_telemetry_5_to_8_send((mavlink_channel_t)mav_chan, temperature, voltage, current, totalcurrent, rpm, count);
-            }
-        }
     }
+    if (!HAVE_PAYLOAD_SPACE((mavlink_channel_t)mav_chan, ESC_TELEMETRY_1_TO_4)) {
+        return;
+    }
+    mavlink_msg_esc_telemetry_1_to_4_send((mavlink_channel_t)mav_chan, temperature, voltage, current, totalcurrent, rpm, count);
 
 }
 
