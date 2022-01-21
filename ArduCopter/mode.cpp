@@ -420,7 +420,7 @@ void Mode::get_pilot_desired_lean_angles(float &roll_out, float &pitch_out, floa
     // do circular limit
     float total_in = norm(pitch_out, roll_out);
     if (total_in > angle_limit) {
-        float ratio = angle_limit / total_in;
+        float ratio = 0.7071f * angle_limit / total_in;
         roll_out *= ratio;
         pitch_out *= ratio;
     }
