@@ -31,6 +31,12 @@
 #endif
 #endif
 
+
+#if HAL_WITH_IO_MCU
+#include <AP_IOMCU/AP_IOMCU.h>
+extern AP_IOMCU iomcu;
+#endif
+
 #include <stdio.h>
 
 #ifndef BOARD_TYPE_DEFAULT
@@ -295,6 +301,11 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
 void AP_BoardConfig::init()
 {
     board_setup();
+#if HAL_WITH_IO_MCU
+    if (!iomcu.healthy() && AP_BoardConfig::io_enabled()) {
+        iomcu.init();
+    }
+#endif
 
     AP::rtc().set_utc_usec(hal.util->get_hw_rtc(), AP_RTC::SOURCE_HW);
 

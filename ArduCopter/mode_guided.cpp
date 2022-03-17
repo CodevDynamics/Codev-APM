@@ -339,6 +339,8 @@ void ModeGuided::run()
 
     case Guided_TakeOff:
         // run takeoff controller
+        // set the takeoff speeds
+        pos_control->set_max_speed_z(-get_pilot_speed_dn(), get_pilot_speed_dn());
         takeoff_run();
         break;
 

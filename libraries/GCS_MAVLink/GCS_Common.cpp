@@ -211,12 +211,22 @@ void GCS_MAVLINK::send_battery_status(const uint8_t instance) const
         }
     }
 
-    float current, consumed_mah, consumed_wh;
-    if (battery.current_amps(current, instance)) {
-         current *= 100;
-    } else {
-        current = -1;
+    float current = 0.0f, consumed_mah, consumed_wh;
+
+#if HAL_CODEV_ESC_ENABLE
+    const AP_CodevEsc *motor_esc = AP::codevesc();
+    for (int i = 0; i < HAL_ESC_NUM; i++) {
+        uint16_t current_esc = motor_esc->_esc_status[i].current;
+        current +=(float)current_esc;
     }
+#else
+        if (battery.current_amps(current, instance)) {
+            current *= 100;
+        } else {
+            current = -1;
+        }
+#endif
+
     if (!battery.consumed_mah(consumed_mah, instance)) {
         consumed_mah = -1;
     }
@@ -781,6 +791,7 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
         { MAVLINK_MSG_ID_BATTERY_STATUS,        MSG_BATTERY_STATUS},
         { MAVLINK_MSG_ID_AOA_SSA,               MSG_AOA_SSA},
         { MAVLINK_MSG_ID_DEEPSTALL,             MSG_LANDING},
+        { MAVLINK_MSG_ID_ESC_TELEMETRY_1_TO_4,  MSG_ESC_TELEMETRY},
         { MAVLINK_MSG_ID_EXTENDED_SYS_STATE,    MSG_EXTENDED_SYS_STATE},
         { MAVLINK_MSG_ID_AUTOPILOT_VERSION,     MSG_AUTOPILOT_VERSION},
             };
@@ -4559,6 +4570,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
     case MSG_ESC_TELEMETRY: {
 #if HAL_CODEV_ESC_ENABLE
     AP_CodevEsc *motor_esc = AP::codevesc();
+    CHECK_PAYLOAD_SIZE(ESC_TELEMETRY_1_TO_4);
     motor_esc->send_esc_telemetry_mavlink(uint8_t(chan));
 #endif
 #ifdef HAVE_AP_BLHELI_SUPPORT
