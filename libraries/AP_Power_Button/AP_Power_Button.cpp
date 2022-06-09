@@ -33,6 +33,7 @@ void AP_Power_Button::update(void)
 {
 #ifdef HAL_PWR_AD_KEY_GPIO
     if (AP::arming().is_armed()) {
+        hal.gpio->write(HAL_POWER_CONTROL_GPIO,1);
         return;
     }
 
