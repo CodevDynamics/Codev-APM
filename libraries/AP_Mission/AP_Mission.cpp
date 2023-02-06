@@ -67,12 +67,20 @@ void AP_Mission::start()
 {
     _flags.state = MISSION_RUNNING;
 
-    reset(); // reset mission to the first command, resets jump tracking
-    
-    // advance to the first command
-    if (!advance_current_nav_cmd()) {
-        // on failure set mission complete
-        complete();
+    if ((unsigned)_cmd_total <= 0)
+    {
+        // no mission, then complete and return
+        complete();        
+    }
+    else
+    {
+        reset(); // reset mission to the first command, resets jump tracking
+        
+        // advance to the first command
+        if (!advance_current_nav_cmd()) {
+            // on failure set mission complete
+            complete();
+        }
     }
 }
 
