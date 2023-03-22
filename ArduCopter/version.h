@@ -6,7 +6,7 @@
 
 #include "ap_version.h"
 
-#define THISFIRMWARE "Aquila-I V2.0.1"
+#define THISFIRMWARE "Aquila-2 V2.1.0"
 
 // the following line is parsed by the autotest scripts
 #define FIRMWARE_VERSION 4,0,7,FIRMWARE_VERSION_TYPE_OFFICIAL

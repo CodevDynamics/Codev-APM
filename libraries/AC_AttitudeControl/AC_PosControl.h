@@ -201,7 +201,11 @@ public:
     void set_pos_target(const Vector3f& position);
 
     /// set_xy_target in cm from home
+#if false   // 
     void set_xy_target(float x, float y);
+#else
+    void set_xy_target(float x, float y, bool is_prlnd_dmode = false);
+#endif    
 
     /// shift position target target in x, y axis
     void shift_pos_xy_target(float x_cm, float y_cm);
@@ -387,7 +391,10 @@ protected:
     // parameters
     AP_Float    _accel_xy_filt_hz;      // XY acceleration filter cutoff frequency
     AP_Float    _lean_angle_max;        // Maximum autopilot commanded angle (in degrees). Set to zero for Angle Max
-    AC_P        _p_pos_z;
+#if true    // argosdyne    
+    AP_Float    _lean_prlnd_angle_max;  // Maximum autopilot commanded angle (in degrees) in Precision Land Mode. Set to zero for Angle Max
+#endif    
+     AC_P        _p_pos_z;
     AC_P        _p_vel_z;
     AC_PID      _pid_accel_z;
     AC_P        _p_pos_xy;
@@ -433,4 +440,9 @@ protected:
 
     // high vibration handling
     bool        _vibe_comp_enabled;     // true when high vibration compensation is on
+
+#if true    // argosdyne
+    // flag for Precision Land Mode
+    bool        _is_prlnd_landmode;     // flag for precision land mode
+#endif    
 };

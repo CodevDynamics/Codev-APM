@@ -65,7 +65,11 @@ void ModeLoiter::precision_loiter_xy()
         target_vel_rel.x = -inertial_nav.get_velocity().x;
         target_vel_rel.y = -inertial_nav.get_velocity().y;
     }
+#if false // argosdyne
     pos_control->set_xy_target(target_pos.x, target_pos.y);
+#else    
+    pos_control->set_xy_target(target_pos.x, target_pos.y, true);
+#endif
     pos_control->override_vehicle_velocity_xy(-target_vel_rel);
 }
 #endif

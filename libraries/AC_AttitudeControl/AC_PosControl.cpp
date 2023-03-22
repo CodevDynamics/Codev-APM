@@ -206,6 +206,15 @@ const AP_Param::GroupInfo AC_PosControl::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("_ANGLE_MAX", 7, AC_PosControl, _lean_angle_max, 0.0f),
 
+    // @Param: _PLNDA_MAX
+    // @DisplayName: Position Control Angle Max in Precison Land mode
+    // @Description: Maximum lean angle autopilot can request.  Set to zero to use ANGLE_MAX parameter value
+    // @Units: deg
+    // @Range: 0 45
+    // @Increment: 1
+    // @User: Advanced
+    AP_GROUPINFO("_PLNDA_MAX", 8, AC_PosControl, _lean_prlnd_angle_max, 15.0f),
+
     AP_GROUPEND
 };
 
@@ -250,6 +259,10 @@ AC_PosControl::AC_PosControl(const AP_AHRS_View& ahrs, const AP_InertialNav& ina
     _limit.vel_up = true;
     _limit.vel_down = true;
     _limit.accel_xy = true;
+
+#if true   // argosdyne
+    _is_prlnd_landmode = false;
+#endif    
 }
 
 ///
@@ -482,6 +495,10 @@ void AC_PosControl::init_takeoff()
 
     _pos_target.z = curr_pos.z;
 
+#if true   // argosdyne
+    _is_prlnd_landmode = false;
+#endif    
+
     // freeze feedforward to avoid jump
     freeze_ff_z();
 
@@ -701,11 +718,21 @@ void AC_PosControl::set_pos_target(const Vector3f& position)
 }
 
 /// set_xy_target in cm from home
+#if false   // argosdyne
 void AC_PosControl::set_xy_target(float x, float y)
 {
     _pos_target.x = x;
     _pos_target.y = y;
 }
+#else
+void AC_PosControl::set_xy_target(float x, float y, bool is_preland_mode)
+{
+    _pos_target.x = x;
+    _pos_target.y = y;
+
+    _is_prlnd_landmode = is_preland_mode;
+}
+#endif
 
 /// shift position target target in x, y axis
 void AC_PosControl::shift_pos_xy_target(float x_cm, float y_cm)
@@ -792,13 +819,31 @@ bool AC_PosControl::is_active_xy() const
 }
 
 /// get_lean_angle_max_cd - returns the maximum lean angle the autopilot may request
+#if false   // argosdyne
 float AC_PosControl::get_lean_angle_max_cd() const
 {
     if (is_zero(_lean_angle_max)) {
         return _attitude_control.lean_angle_max();
     }
-    return _lean_angle_max * 100.0f;
+    return _lean_angle_max * 100.0f;    
 }
+#else
+float AC_PosControl::get_lean_angle_max_cd() const
+{
+    if (_is_prlnd_landmode == false) {
+        if (is_zero(_lean_angle_max)) {
+            return _attitude_control.lean_angle_max();
+        }
+        return (_lean_angle_max * 100.0f);
+    }
+    else {
+        if (is_zero(_lean_prlnd_angle_max)) {
+            return _attitude_control.lean_angle_max();
+        }
+        return (_lean_prlnd_angle_max * 100.0f);
+    }
+}
+#endif
 
 /// init_xy_controller - initialise the xy controller
 ///     this should be called after setting the position target and the desired velocity and acceleration
