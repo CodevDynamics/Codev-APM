@@ -128,15 +128,6 @@ const AP_Param::GroupInfo AC_PrecLand::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("ACC_ERR", 12, AC_PrecLand, _acceptable_error, 15.0f),
 
-    // @Param: ANGLE_MAX
-    // @DisplayName: Maximum Angle
-    // @Description: Maximum Angle for controlling Attitude during PRELAND
-    // @Range: 10 30
-    // @Increment: 1
-    // @Units: cdeg
-    // @User: Advanced
-    AP_GROUPINFO("ANGLE_MAX", 13, AC_PrecLand, _angle_max, 10.0f),
-
     // @Param: START_ALT
     // @DisplayName: Starting Altitude of Precision Landing
     // @Description: Starting Altitude of Precision Landing
@@ -495,5 +486,4 @@ void AC_PrecLand::run_output_prediction()
 float AC_PrecLand::get_min_alti() { return _min_altitude; }
 float AC_PrecLand::get_max_alti() { return _max_altitude; }
 float AC_PrecLand::get_acceptable_error() { return _acceptable_error; }
-float AC_PrecLand::get_angle_max() { return _angle_max; }
 float AC_PrecLand::get_start_alti() { return _start_alt; }
